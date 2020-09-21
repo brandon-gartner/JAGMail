@@ -50,7 +50,7 @@ public class TestMainApplication {
      * so that it's ready for the next test
      */
     public void createBeans(){
-        sendingConfigBean = new MailConfigBean("smtp.gmail.com", "compscicctesting@gmail.com", "Dawson1234");
+        sendingConfigBean = new MailConfigBean("smtp.gmail.com", "bg01test@gmail.com", "Dawson123");
         receivingConfigBean = new MailConfigBean("imap.gmail.com", "bg02test@gmail.com", "Dawson123");
         sending = new MainApplication(sendingConfigBean);
         receiving = new MainApplication(receivingConfigBean);
@@ -123,7 +123,7 @@ public class TestMainApplication {
      * 5. send email without recipient
      * @throws MailException if the email entered is invalid (it is)
      */
-    @Test(expected = MailException.class, timeout = 5000)
+    @Test(expected = MailException.class, timeout = 10000)
     public void testSendWithoutRecipient() throws MailException{
         Email email = sending.sendEmail(to, cc, bcc, "", "this email has no recipient", "", attachments, embeddedAttachments);
     }
