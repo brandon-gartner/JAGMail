@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Maven version of the xml document currently only 4.0.0 is valid -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- The GAV consists of an arbitrary descriptor that is usually in the
+    form of a reverse domain name. -->
+    <groupId>com.kenfogel</groupId>
+
+    <!-- This is the name given to the packaged build -->
+    <artifactId>JAG_Work</artifactId>
+
+    <!-- The version of the build. Any value is valid though a number and a
+    string are common. SNAPSHOT means a project under development. FINAL is commonly
+    used to refer to stable production version -->
+    <version>1.0.0-SNAPSHOT</version>
+
+    <!-- Default value is jar but may be war or ear -->
+    <packaging>jar</packaging>
+
+    <!-- The name given to the project. Unlike groupId and artifactId a name
+    may have spaces -->
+    <name>${artifactId}</name>
+
+    <!-- A description of the program -->
+    <description>Starter project for the JAG</description>
+
+    <!-- Identifies the programmer or programmers who worked on the project -->
+    <developers>
+        <developer>
+            <id>1841672</id>
+            <name>Brandon Gartner</name>
+            <email>brandon.gartner@dawsoncollege.qc.ca</email>
+        </developer>
+    </developers>
+
+    <!-- The company or organization that the programmer(s) work for -->
+    <organization>
+        <name>Dawson College</name>
+    </organization>
+
+    <!-- Global settings for the project. Settings can be accessed in the pom
+    by placing the tag name in ${...} ex. ${mainClass} -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- class that has the main method -->
+        <mainClass>${groupId}.${artifactId}.TestMainApplication</mainClass>
+        <skipTests>false</skipTests>
+    </properties>
+
+    <!-- All of the sample code shares the same dependencies and build         -->
+    <!-- The parent project named web_project_dependencies must be loaded into -->
+    <!-- the IDE and you must Run Maven with a goal of install:install         -->
+    <!-- Now it can be the parent pom of all projects                          --> 
+    <!-- https://gitlab.com/omniprof/desktop_project_dependencies.git              --> 
+    <parent>
+        <groupId>com.kfdesktopstandard</groupId>
+        <artifactId>desktop_project_dependencies</artifactId>
+        <version>2.2</version>
+    </parent>
+
+    <dependencies>
+        <!-- Jodd Mail Dependency -->
+        <dependency>
+            <groupId>org.jodd</groupId>
+            <artifactId>jodd-mail</artifactId>
+            <version>5.1.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.mail/javax.mail-api -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>javax.mail-api</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.activation/javax.activation-api -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>javax.activation-api</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <!-- Goals may be set in the IDE or the pom IDE or CLI goals override 
+             the defaultGoal 
+        -->
+        <defaultGoal>clean test</defaultGoal>
+    </build>    
+
+</project>
+
+
+

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ca.brandongartner.jag.mail_business_tests.TestMainApplication
+-------------------------------------------------------------------------------
+Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 161.148 s - in ca.brandongartner.jag.mail_business_tests.TestMainApplication
