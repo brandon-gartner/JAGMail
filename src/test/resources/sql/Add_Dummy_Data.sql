@@ -56,7 +56,7 @@ INSERT INTO attachments(file, isEmbedded) VALUES
 INSERT INTO emails(subject, message, htmlMessage, toAddressId, ccAddressId, bccAddressId) VALUES
 ("subject", "aaaaaaaaaaaaaaaaaaa", "<html></html>", )
 
-INSERT INTO emailToAddresses(emailId, addressId) VALUES
+INSERT INTO emailToAddresses(emailId, addressId, type) VALUES
 ()
 
 INSERT INTO emailAttachments(emailId, attachmentId) VALUES

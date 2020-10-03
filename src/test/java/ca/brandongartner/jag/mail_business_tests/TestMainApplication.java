@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package ca.brandongartner.jag.mail_business_tests;
-import ca.brandongartner.jag.mail_business.*;
-import ca.brandongartner.jag.main_application.*;
+import ca.brandongartner.jag.mail_business.MainApplication;
+import ca.brandongartner.jag.beans.MailConfigBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

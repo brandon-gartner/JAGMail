@@ -9,13 +9,6 @@
  */
 
 
-DROP USER IF EXISTS TheUser@localhost;
-CREATE USER TheUser@'localhost' IDENTIFIED BY 'fakepass';
-
-GRANT ALL ON mysql.* TO TheUser@'localhost';
-
-FLUSH PRIVILEGES;
-
 DROP TABLE IF EXISTS emailToAddresses;
 DROP TABLE IF EXISTS emailAttachments;
 DROP TABLE IF EXISTS folders;
@@ -57,13 +50,17 @@ CREATE TABLE emails (
     ccAddress INT,
     bccAddress INT,
     -- add constraints --
-
+    --CONSTRAINT toAddressExists FOREIGN KEY (emailId) REFERENCES emails (emailId),
+    --CONSTRAINT ccAddressExists FOREIGN KEY (addressId) REFERENCES addresses (addressId)
+    --CONSTRAINT bccAddressExio FOREIGN KEY (emailId) REFERENCES emails (emailId),
+    
     PRIMARY KEY (emailId)
 );
 
 
 CREATE TABLE emailToAddresses (
     emailId INT,
+    type VARCHAR(10),
     addressId INT,
     CONSTRAINT emailExistsEmailToAddresses FOREIGN KEY (emailId) REFERENCES emails (emailId),
     CONSTRAINT addressExists FOREIGN KEY (addressId) REFERENCES addresses (addressId)
