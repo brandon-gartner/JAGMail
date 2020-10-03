@@ -5,6 +5,7 @@
  */
 package ca.brandongartner.jag.beans;
 
+import jodd.mail.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,4 +15,26 @@ import org.slf4j.LoggerFactory;
  */
 public class EmailBean {
     private final static Logger LOG = LoggerFactory.getLogger(EmailBean.class);
+    
+    private Email containedEmail;
+    private int folderId;
+    private java.sql.Timestamp receivedDate;
+    public EmailBean(Email containedEmail, int folderId, java.sql.Timestamp receivedDate){
+        this.containedEmail = containedEmail;
+        this.folderId = folderId;
+        this.receivedDate = receivedDate;
+    }
+    
+    //WARNING, CHANGE THIS TO THE INDIVIDUAL EMAIL THINGS LATER
+    public Email getEmail(){
+        return this.containedEmail;
+    }
+    
+    public int getFolderId(){
+        return this.folderId;
+    }
+    
+    public java.sql.Timestamp getReceivedDate(){
+        return this.receivedDate;
+    }
 }
