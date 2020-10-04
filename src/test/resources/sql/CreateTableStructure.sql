@@ -49,11 +49,12 @@ CREATE TABLE emails (
     toAddress INT, 
     ccAddress INT,
     bccAddress INT,
+    folderId INT,
     -- add constraints --
     --CONSTRAINT toAddressExists FOREIGN KEY (emailId) REFERENCES emails (emailId),
     --CONSTRAINT ccAddressExists FOREIGN KEY (addressId) REFERENCES addresses (addressId)
     --CONSTRAINT bccAddressExio FOREIGN KEY (emailId) REFERENCES emails (emailId),
-    
+    CONSTRAINT folderExists FOREIGN KEY (folderId) REFERENCES folders (folderId);
     PRIMARY KEY (emailId)
 );
 
