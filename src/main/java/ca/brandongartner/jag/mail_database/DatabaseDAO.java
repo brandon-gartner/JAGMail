@@ -5,7 +5,9 @@
  */
 package ca.brandongartner.jag.mail_database;
 
+import ca.brandongartner.jag.beans.AttachmentBean;
 import ca.brandongartner.jag.beans.EmailBean;
+import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Connection;
@@ -13,9 +15,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import jodd.mail.EmailAddress;
+import javax.activation.DataSource;
+import jodd.mail.EmailAttachment;
 
 /**
  *
@@ -40,13 +46,28 @@ public class DatabaseDAO {
     }
     
     //TODO: CREATE SENT EMAIL
-    public int insertSentEmail(EmailBean emailBean) throws SQLException{
+    public int insertSentEmail(EmailBean emailBean, String folderName) throws SQLException{
         Connection connection = generateConnection();
         int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
+        counter += addAttachmentsToAttachmentTable(connection, emailBean);
+        String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId)" + 
+                      " VALUES (?, ?, ?, ?, ?, ?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, emailBean.getSubject());
+        ps.setString(2, emailBean.getMessage());
+        ps.setString(3, emailBean.getHtmlMessage());
+        ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+        
+        int folderId = getFolderIdFromName(folderName);
         //TODO: same stuff but using attachments
         //create bridging tables
         //insert email
     }
+    
+    public int getFolderIdFromName(String folderName){
+        String sql
+    }
+    
     
     /**
      * 
@@ -129,6 +150,66 @@ public class DatabaseDAO {
         return addedCounter;
     }
     
+    private int addAttachmentsToAttachmentTable(Connection connection, EmailBean emailBean) throws SQLException{
+        HashSet<AttachmentBean> attachmentSet = getAttachmentSet(emailBean);
+        ArrayList<AttachmentBean> beansToAdd = findMissingAttachments(connection, attachmentSet);
+        String sql = "INSERT INTO attachments (file, isEmbedded) VALUES (?, ?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        int counter = 0;
+        for (AttachmentBean bean : beansToAdd){
+            ps.setBytes(1, bean.getAttachment());
+            ps.setBoolean(2, bean.getIsEmbedded());
+            counter += 1;
+        }
+        return counter;
+    }
+    
+    private HashSet<AttachmentBean> getAttachmentSet(EmailBean emailBean){
+        HashSet<AttachmentBean> attachmentSet = new HashSet<AttachmentBean>();
+        List<EmailAttachment<? extends DataSource>> attachments = emailBean.getAttachments();
+        for (EmailAttachment attachment : emailBean.getAttachments()){
+            AttachmentBean newAttachmentBean = generateAttachmentBean(attachment);
+            attachmentSet.add(newAttachmentBean);
+        }
+        return attachmentSet;
+    }
+    
+    private AttachmentBean generateAttachmentBean(EmailAttachment emailAttachment){
+        AttachmentBean newBean = new AttachmentBean();
+        newBean.setIsEmbedded(emailAttachment.getContentId() != null);
+        newBean.setFileName(emailAttachment.getName());
+        newBean.setAttachment(emailAttachment.toByteArray());
+        return newBean;
+    }
+    
+    private ArrayList<AttachmentBean> findMissingAttachments(Connection connection, HashSet<AttachmentBean> attachments) throws SQLException{
+        ArrayList<AttachmentBean> attachmentsNotInDB = new ArrayList<AttachmentBean>(attachments);
+        //String sql = "SELECT emailAddress FROM addresses WHERE emailAddress = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        for (AttachmentBean attachment : attachmentsNotInDB){
+            ps.setBytes(1, attachment.getAttachment());
+            ResultSet result = ps.executeQuery();
+            if (checkIfAttachmentInsideOfResultSet(result, attachment.getAttachment())){
+                continue;
+            }
+            else {
+                attachmentsNotInDB.remove(attachment);
+            }
+        }
+        return attachmentsNotInDB;
+    }
+    
+    private boolean checkIfAttachmentInsideOfResultSet(ResultSet rs, byte[] bytes) throws SQLException{
+        byte[] receivedAttachment = rs.getBytes("file");
+        if (receivedAttachment != null && receivedAttachment.equals(bytes)){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    
     //tests for each:
     //exceeding name length
     
@@ -173,9 +254,10 @@ public class DatabaseDAO {
     //DELETE EMAILS FROM INBOX/DRAFTS
     public int deleteEmail(int emailId){
         deleteRelatedEmailStuff(emailId);
+        //deleteemails
     }
     
-    //DELETE ALL EMAILS FROM EMAILTOADDRESSES WITH A CERTAIN EMAIL ADDRESS
+    //DELETE ALL EMAILS FROM EMAILTOADDRESSES WITH A CERTAIN EMAIL ADDRESS, DELETE ATTACHMENTS ONLY RELATED TO THE ONE EMAIL
     private int deleteRelatedEmailStuff(int emailId){
         
     }
@@ -260,6 +342,16 @@ public class DatabaseDAO {
         ps.setString(1, messageToSearch);
         ps.setString(2, messageToSearch);
         ps.setString(3, messageToSearch);
+        ResultSet rs = ps.executeQuery();
+        return rs;
+    }
+    
+    public ResultSet findEmailsFromEmail(Connection connection, String emailAddress) throws SQLException{
+        String sql = "SELECT * FROM emails WHERE addresses.emailAddress = ?" + 
+                      "INNER JOIN emailToAddresses ON emails.emailId = emailToAddresses.emailId " + 
+                      "INNER JOIN addresses ON emailToAddresses.addressId = addresses.addressId";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, emailAddress);
         ResultSet rs = ps.executeQuery();
         return rs;
     }
