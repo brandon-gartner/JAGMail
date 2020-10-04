@@ -139,8 +139,8 @@ public class DatabaseDAO {
         
     }
     
-    public int findEmailInFolder(EmailBean emailBean){
-        sql = 
+    public int findEmailInFolder(String folderName){
+        sql = "SELECT * FROM "
     }
     
     public int findEmailMessage(EmailBean emailBean){
