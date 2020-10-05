@@ -23,6 +23,15 @@ import jodd.mail.EmailAddress;
 import javax.activation.DataSource;
 import jodd.mail.EmailAttachment;
 
+
+//GENERAL TODO:
+//FINISH CREATE SETTING UP BRIDGING TABLE FOR ADDRESSES
+//UPDATE/DELETE
+//COMMENTS
+//LOG4J
+//TESTING
+//TODO: EMAILBEAN GENERATOR FROM FINDEMAIL RESULTSET
+
 /**
  *
  * @author Brandon Gartner
@@ -50,7 +59,7 @@ public class DatabaseDAO {
         Connection connection = generateConnection();
         int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
         counter += addAttachmentsToAttachmentTable(connection, emailBean);
-        String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId)" + 
+        String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from)" + 
                       " VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, emailBean.getSubject());
@@ -58,14 +67,81 @@ public class DatabaseDAO {
         ps.setString(3, emailBean.getHtmlMessage());
         ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
         
-        int folderId = getFolderIdFromName(folderName);
-        //TODO: same stuff but using attachments
+        int folderId = getFolderIdFromName(connection, folderName);
+        
+        ps.setInt(6, folderId);
+        
+        int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
+        
+        ps.setInt(7, fromId);
+        
+        counter += ps.executeUpdate();
+        
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()){
+            int emailId = rs.getInt(1);
+            emailBean.setEmailId(emailId);
+        }
+        
+        addToEmailsToAddresses(connection, emailBean);
+        //get from field
         //create bridging tables
         //insert email
     }
     
-    public int getFolderIdFromName(String folderName){
-        String sql
+    private void addToEmailsToAddresses(Connection connection, EmailBean emailBean) throws SQLException{
+        addTosToBridging(connection, emailBean);
+        addCCsToBridging(connection, emailBean);
+        addBCCsToBridging(connection, emailBean);
+    }
+    
+    private void addTosToBridging(Connection connection, EmailBean emailBean) throws SQLException{
+        List<EmailAddress> listOfTos = emailBean.getTos();
+        String sql = "INSERT INTO emailToAddresses (emailId, type, addressId) VALUES (?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        for (EmailAddress address : listOfTos){
+            int addressId = getAddressIdFromEmailAddress(connection, address.getEmail());
+            ps.setInt(1, emailBean.getEmailId());
+            ps.setString(2, "To");
+            ps.setInt(3, addressId);
+            ps.executeUpdate();
+        }
+    }
+    
+    private void addCCsToBridging(Connection connection, EmailBean emailBean) throws SQLException{
+        List<EmailAddress> listOfCCs = emailBean.getCCs();
+        String sql = "INSERT INTO emailToAddresses (emailId, type, addressId) VALUES (?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        for (EmailAddress address : listOfCCs){
+            int addressId = getAddressIdFromEmailAddress(connection, address.getEmail());
+            ps.setInt(1, emailBean.getEmailId());
+            ps.setString(2, "CC");
+            ps.setInt(3, addressId);
+            ps.executeUpdate();
+        }
+    }
+    
+    private void addBCCsToBridging(Connection connection, EmailBean emailBean) throws SQLException{
+        List<EmailAddress> listOfBCCs = emailBean.getBCCs();
+        String sql = "INSERT INTO emailToAddresses (emailId, type, addressId) VALUES (?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        for (EmailAddress address : listOfBCCs){
+            int addressId = getAddressIdFromEmailAddress(connection, address.getEmail());
+            ps.setInt(1, emailBean.getEmailId());
+            ps.setString(2, "BCC");
+            ps.setInt(3, addressId);
+            ps.executeUpdate();
+        }
+    }
+    
+    private int getFolderIdFromName(Connection connection, String folderName) throws SQLException{
+        String sql = "SELECT * FROM folders WHERE name = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, folderName);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int folderId = rs.getInt("folderId");
+        return folderId;
     }
     
     
@@ -150,15 +226,28 @@ public class DatabaseDAO {
         return addedCounter;
     }
     
+    /**
+     * modified to not check for duplicates since apparently we don't need a bridging table for this
+     * @param connection
+     * @param emailBean
+     * @return
+     * @throws SQLException 
+     */
     private int addAttachmentsToAttachmentTable(Connection connection, EmailBean emailBean) throws SQLException{
         HashSet<AttachmentBean> attachmentSet = getAttachmentSet(emailBean);
-        ArrayList<AttachmentBean> beansToAdd = findMissingAttachments(connection, attachmentSet);
+        //ArrayList<AttachmentBean> beansToAdd = findMissingAttachments(connection, attachmentSet);
         String sql = "INSERT INTO attachments (file, isEmbedded) VALUES (?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql);
         int counter = 0;
-        for (AttachmentBean bean : beansToAdd){
+        //modified to use attachmentSet instead of beansToAdd
+        for (AttachmentBean bean : attachmentSet){
             ps.setBytes(1, bean.getAttachment());
             ps.setBoolean(2, bean.getIsEmbedded());
+            ps.executeUpdate();
+            ResultSet resultSet = ps.getGeneratedKeys();
+            if (resultSet.next()){
+                bean.setId(resultSet.getInt(1));
+            }
             counter += 1;
         }
         return counter;
@@ -208,6 +297,8 @@ public class DatabaseDAO {
             return false;
         }
     }
+    
+    
     
     
     //tests for each:
@@ -291,7 +382,7 @@ public class DatabaseDAO {
      * @param folderId
      * @return 
      */
-    private boolean checkIfFolderExists(Connection connection, int folderId){
+    private boolean checkIfFolderExists(Connection connection, int folderId) throws SQLException{
         String sql = "SELECT * FROM folders WHERE folderId = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setInt(1, folderId);
@@ -306,11 +397,7 @@ public class DatabaseDAO {
         
     }
     
-    //READ EMAIL AND PRODUCE EMAILBEAN FROM IT
-    //READ EMAIL FROM DATABASE AND CREATE EMAILBEAN FROM IT
-    public int findEmail(EmailBean emailBean){
-        
-    }
+    
     
     /**
      * 
@@ -346,7 +433,7 @@ public class DatabaseDAO {
         return rs;
     }
     
-    public ResultSet findEmailsFromEmail(Connection connection, String emailAddress) throws SQLException{
+    public ResultSet findEmailsFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
         String sql = "SELECT * FROM emails WHERE addresses.emailAddress = ?" + 
                       "INNER JOIN emailToAddresses ON emails.emailId = emailToAddresses.emailId " + 
                       "INNER JOIN addresses ON emailToAddresses.addressId = addresses.addressId";
@@ -356,8 +443,15 @@ public class DatabaseDAO {
         return rs;
     }
     
+    private int getAddressIdFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
+        String sql = "SELECT * FROM addresses WHERE emailAddress = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, emailAddress);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int addressId = rs.getInt("addressId");
+        return addressId;
+    }
     
-    //COMMENTS
-    //LOG4J
-    //TESTING
+    
 }
