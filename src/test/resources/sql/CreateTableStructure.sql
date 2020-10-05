@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS emails;
 
 CREATE TABLE folders (
     folderId INT AUTO_INCREMENT,
-    name VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) NOT NULL,
 
     PRIMARY KEY (folderId)
 );
@@ -42,13 +42,15 @@ CREATE TABLE attachments (
 
 CREATE TABLE emails (
     emailId INT AUTO_INCREMENT,
+    from INT,
     subject TEXT,
     message LONGTEXT,
     htmlMessage LONGTEXT,
     sendDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    toAddress INT, 
-    ccAddress INT,
-    bccAddress INT,
+    receiveDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    --toAddress INT, 
+    --ccAddress INT,
+    --bccAddress INT,
     folderId INT,
     -- add constraints --
     --CONSTRAINT toAddressExists FOREIGN KEY (emailId) REFERENCES emails (emailId),

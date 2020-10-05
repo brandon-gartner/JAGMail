@@ -27,6 +27,7 @@ public class EmailBean {
     private int folderId;
     private java.sql.Timestamp receivedDate;
     private java.sql.Timestamp sentDate;
+    private int emailId;
     
     //WARNING, CHANGE THIS TO THE INDIVIDUAL EMAIL THINGS LATER
     public Email getEmail(){
@@ -43,6 +44,10 @@ public class EmailBean {
     
     public java.sql.Timestamp getSentDate(){
         return this.sentDate;
+    }
+    
+    public int getEmailId(){
+        return this.emailId;
     }
     
     public ArrayList<EmailAddress> getTos(){
@@ -101,5 +106,9 @@ public class EmailBean {
     
     public void setSentDate(java.sql.Timestamp timestamp){
         this.sentDate = timestamp;
+    }
+    
+    public void setEmailId(int newId){
+        this.emailId = newId;
     }
 }

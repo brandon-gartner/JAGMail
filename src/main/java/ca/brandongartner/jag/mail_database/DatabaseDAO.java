@@ -55,10 +55,21 @@ public class DatabaseDAO {
     }
     
     //TODO: CREATE SENT EMAIL
+    /**
+     * overall, does all of the things involved with adding an email to the database
+     * @param emailBean the emailBean that the email we're adding is based off of
+     * @param folderName the name of the folder we want to add the email to
+     * @returns the amount of lines affected by the method
+     * @throws SQLException 
+     */
     public int insertSentEmail(EmailBean emailBean, String folderName) throws SQLException{
+        //creates a connection, adds relevant email addresses and attachments to their respective tables (TODO: move addattachments to later, so it can contain emailid)
         Connection connection = generateConnection();
         int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
         counter += addAttachmentsToAttachmentTable(connection, emailBean);
+        
+        //create sql statement, prepare it, insert data into it
+        //TODO: private method this
         String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from)" + 
                       " VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -66,35 +77,45 @@ public class DatabaseDAO {
         ps.setString(2, emailBean.getMessage());
         ps.setString(3, emailBean.getHtmlMessage());
         ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-        
         int folderId = getFolderIdFromName(connection, folderName);
-        
         ps.setInt(6, folderId);
-        
         int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
-        
         ps.setInt(7, fromId);
-        
         counter += ps.executeUpdate();
         
+        //getting the emailId and saving it to the bean
         ResultSet rs = ps.getGeneratedKeys();
         if (rs.next()){
             int emailId = rs.getInt(1);
             emailBean.setEmailId(emailId);
         }
         
+        //adding the addresses to the right places
         addToEmailsToAddresses(connection, emailBean);
         //get from field
         //create bridging tables
         //insert email
+        return counter;
     }
     
+    /**
+     * adds the entries for all of the tos, bccs, and ccs
+     * @param connection the connection through which all of these methods are ran
+     * @param emailBean the emailBean that the tos and ccs and bccs are all based on
+     * @throws SQLException if any of the methods inside cause an SQLException
+     */
     private void addToEmailsToAddresses(Connection connection, EmailBean emailBean) throws SQLException{
         addTosToBridging(connection, emailBean);
         addCCsToBridging(connection, emailBean);
         addBCCsToBridging(connection, emailBean);
     }
     
+    /**
+     * 
+     * @param connection the connection this is all done through
+     * @param emailBean
+     * @throws SQLException 
+     */
     private void addTosToBridging(Connection connection, EmailBean emailBean) throws SQLException{
         List<EmailAddress> listOfTos = emailBean.getTos();
         String sql = "INSERT INTO emailToAddresses (emailId, type, addressId) VALUES (?,?,?)";
@@ -108,6 +129,12 @@ public class DatabaseDAO {
         }
     }
     
+    /**
+     * 
+     * @param connection the connection this is all done through
+     * @param emailBean
+     * @throws SQLException 
+     */
     private void addCCsToBridging(Connection connection, EmailBean emailBean) throws SQLException{
         List<EmailAddress> listOfCCs = emailBean.getCCs();
         String sql = "INSERT INTO emailToAddresses (emailId, type, addressId) VALUES (?,?,?)";
@@ -121,6 +148,12 @@ public class DatabaseDAO {
         }
     }
     
+    /**
+     * 
+     * @param connection the connection this is all done through
+     * @param emailBean
+     * @throws SQLException 
+     */
     private void addBCCsToBridging(Connection connection, EmailBean emailBean) throws SQLException{
         List<EmailAddress> listOfBCCs = emailBean.getBCCs();
         String sql = "INSERT INTO emailToAddresses (emailId, type, addressId) VALUES (?,?,?)";
@@ -134,6 +167,13 @@ public class DatabaseDAO {
         }
     }
     
+    /**
+     * 
+     * @param connection the connection this is all done through
+     * @param folderName
+     * @return
+     * @throws SQLException 
+     */
     private int getFolderIdFromName(Connection connection, String folderName) throws SQLException{
         String sql = "SELECT * FROM folders WHERE name = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -207,7 +247,7 @@ public class DatabaseDAO {
     
     /**
      * 
-     * @param connection
+     * @param connection the connection this is all done through
      * @param emailBean
      * @return
      * @throws SQLException 
@@ -228,7 +268,7 @@ public class DatabaseDAO {
     
     /**
      * modified to not check for duplicates since apparently we don't need a bridging table for this
-     * @param connection
+     * @param connection the connection this is all done through
      * @param emailBean
      * @return
      * @throws SQLException 
