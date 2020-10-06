@@ -56,6 +56,99 @@ public class DatabaseDAO {
     
     
     
+    private AttachmentBean generateAttachmentBean(EmailAttachment emailAttachment){
+        AttachmentBean newBean = new AttachmentBean();
+        newBean.setIsEmbedded(emailAttachment.getContentId() != null);
+        newBean.setFileName(emailAttachment.getName());
+        newBean.setAttachment(emailAttachment.toByteArray());
+        return newBean;
+    }
+    
+    
+    //CREATE/PRIVATE METHODS FOR CREATE
+    
+    /**
+     * overall, does all of the things involved with adding an email to the database
+     * @param emailBean the emailBean that the email we're adding is based off of
+     * @param folderName the name of the folder we want to add the email to
+     * @returns the amount of lines affected by the method
+     * @throws SQLException 
+     */
+    public int insertEmail(EmailBean emailBean, String folderName) throws SQLException{
+        //creates a connection, adds relevant email addresses and attachments to their respective tables (TODO: move addattachments to later, so it can contain emailid)
+        Connection connection = generateConnection();
+        int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
+        counter += addAttachmentsToAttachmentTable(connection, emailBean);
+        
+        //create sql statement, prepare it, insert data into it
+        //TODO: private method this
+        String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from)" + 
+                      " VALUES (?, ?, ?, ?, ?, ?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, emailBean.getSubject());
+        ps.setString(2, emailBean.getMessage());
+        ps.setString(3, emailBean.getHtmlMessage());
+        ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+        int folderId = getFolderIdFromName(connection, folderName);
+        ps.setInt(6, folderId);
+        int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
+        ps.setInt(7, fromId);
+        counter += ps.executeUpdate();
+        
+        //getting the emailId and saving it to the bean
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()){
+            int emailId = rs.getInt(1);
+            emailBean.setEmailId(emailId);
+        }
+        
+        //adding the addresses to the right places
+        addToEmailsToAddresses(connection, emailBean);
+        //get from field
+        //create bridging tables
+        //insert email
+        return counter;
+    }
+    
+    /**
+     * 
+     * @param connection
+     * @param folderId
+     * @return 
+     */
+    private boolean checkIfFolderExists(Connection connection, int folderId) throws SQLException{
+        String sql = "SELECT * FROM folders WHERE folderId = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, folderId);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        if (rs.getInt(folderId) == folderId){
+            return true;
+        }
+        else {
+            return false;
+        }
+        
+    }
+    
+    /**
+     * Takes a string, and creates a new folder with that name.
+     * @param connection the connection through which all database interactions will operate
+     * @param name the name of the new folder
+     * @return 1, if the folder is successfully created
+     * @throws SQLException if there is an error when setting the string, or generating the preparedStatement
+     */
+    public int createFolder(Connection connection, String name) throws SQLException{
+        if (name.length() > 50){
+            throw new IllegalArgumentException("Name of the new folder was too long, should be 50 characters maximum.");
+        }
+        String sql = "INSERT INTO folders (name) VALUES (?)";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, name);
+        ps.executeUpdate();
+        return 1;
+    }
+    
     /**
      * adds the entries for all of the tos, bccs, and ccs
      * @param connection the connection through which all of these methods are ran
@@ -124,24 +217,6 @@ public class DatabaseDAO {
             ps.executeUpdate();
         }
     }
-    
-    /**
-     * 
-     * @param connection the connection this is all done through
-     * @param folderName
-     * @return
-     * @throws SQLException 
-     */
-    private int getFolderIdFromName(Connection connection, String folderName) throws SQLException{
-        String sql = "SELECT * FROM folders WHERE name = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, folderName);
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int folderId = rs.getInt("folderId");
-        return folderId;
-    }
-    
     
     /**
      * 
@@ -233,11 +308,9 @@ public class DatabaseDAO {
      */
     private int addAttachmentsToAttachmentTable(Connection connection, EmailBean emailBean) throws SQLException{
         HashSet<AttachmentBean> attachmentSet = getAttachmentSet(emailBean);
-        //ArrayList<AttachmentBean> beansToAdd = findMissingAttachments(connection, attachmentSet);
         String sql = "INSERT INTO attachments (file, isEmbedded) VALUES (?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql);
         int counter = 0;
-        //modified to use attachmentSet instead of beansToAdd
         for (AttachmentBean bean : attachmentSet){
             ps.setBytes(1, bean.getAttachment());
             ps.setBoolean(2, bean.getIsEmbedded());
@@ -260,150 +333,6 @@ public class DatabaseDAO {
         }
         return attachmentSet;
     }
-    
-    private AttachmentBean generateAttachmentBean(EmailAttachment emailAttachment){
-        AttachmentBean newBean = new AttachmentBean();
-        newBean.setIsEmbedded(emailAttachment.getContentId() != null);
-        newBean.setFileName(emailAttachment.getName());
-        newBean.setAttachment(emailAttachment.toByteArray());
-        return newBean;
-    }
-    
-    private ArrayList<AttachmentBean> findMissingAttachments(Connection connection, HashSet<AttachmentBean> attachments) throws SQLException{
-        ArrayList<AttachmentBean> attachmentsNotInDB = new ArrayList<AttachmentBean>(attachments);
-        //String sql = "SELECT emailAddress FROM addresses WHERE emailAddress = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        for (AttachmentBean attachment : attachmentsNotInDB){
-            ps.setBytes(1, attachment.getAttachment());
-            ResultSet result = ps.executeQuery();
-            if (checkIfAttachmentInsideOfResultSet(result, attachment.getAttachment())){
-                continue;
-            }
-            else {
-                attachmentsNotInDB.remove(attachment);
-            }
-        }
-        return attachmentsNotInDB;
-    }
-    
-    private boolean checkIfAttachmentInsideOfResultSet(ResultSet rs, byte[] bytes) throws SQLException{
-        byte[] receivedAttachment = rs.getBytes("file");
-        if (receivedAttachment != null && receivedAttachment.equals(bytes)){
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    
-    
-    
-    
-    //tests for each:
-    //exceeding name length
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    //CREATE/PRIVATE METHODS FOR CREATE
-    
-    /**
-     * overall, does all of the things involved with adding an email to the database
-     * @param emailBean the emailBean that the email we're adding is based off of
-     * @param folderName the name of the folder we want to add the email to
-     * @returns the amount of lines affected by the method
-     * @throws SQLException 
-     */
-    public int insertEmail(EmailBean emailBean, String folderName) throws SQLException{
-        //creates a connection, adds relevant email addresses and attachments to their respective tables (TODO: move addattachments to later, so it can contain emailid)
-        Connection connection = generateConnection();
-        int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
-        counter += addAttachmentsToAttachmentTable(connection, emailBean);
-        
-        //create sql statement, prepare it, insert data into it
-        //TODO: private method this
-        String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from)" + 
-                      " VALUES (?, ?, ?, ?, ?, ?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, emailBean.getSubject());
-        ps.setString(2, emailBean.getMessage());
-        ps.setString(3, emailBean.getHtmlMessage());
-        ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-        int folderId = getFolderIdFromName(connection, folderName);
-        ps.setInt(6, folderId);
-        int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
-        ps.setInt(7, fromId);
-        counter += ps.executeUpdate();
-        
-        //getting the emailId and saving it to the bean
-        ResultSet rs = ps.getGeneratedKeys();
-        if (rs.next()){
-            int emailId = rs.getInt(1);
-            emailBean.setEmailId(emailId);
-        }
-        
-        //adding the addresses to the right places
-        addToEmailsToAddresses(connection, emailBean);
-        //get from field
-        //create bridging tables
-        //insert email
-        return counter;
-    }
-    
-    /**
-     * 
-     * @param connection
-     * @param folderId
-     * @return 
-     */
-    private boolean checkIfFolderExists(Connection connection, int folderId) throws SQLException{
-        String sql = "SELECT * FROM folders WHERE folderId = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, folderId);
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        if (rs.getInt(folderId) == folderId){
-            return true;
-        }
-        else {
-            return false;
-        }
-        
-    }
-    
-    /**
-     * Takes a string, and creates a new folder with that name.
-     * @param connection the connection through which all database interactions will operate
-     * @param name the name of the new folder
-     * @return 1, if the folder is successfully created
-     * @throws SQLException if there is an error when setting the string, or generating the preparedStatement
-     */
-    public int createFolder(Connection connection, String name) throws SQLException{
-        if (name.length() > 50){
-            throw new IllegalArgumentException("Name of the new folder was too long, should be 50 characters maximum.");
-        }
-        String sql = "INSERT INTO folders (name) VALUES (?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, name);
-        ps.executeUpdate();
-        return 1;
-    }
-    
     
     //READ/PRIVATE METHODS TO READ
     
@@ -437,6 +366,16 @@ public class DatabaseDAO {
                       "WHERE folders.name = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, folderName);
+        ResultSet rs = ps.executeQuery();
+        return rs;
+    }
+    
+    public ResultSet findEmailsFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
+        String sql = "SELECT * FROM emails WHERE addresses.emailAddress = ?" + 
+                      "INNER JOIN emailToAddresses ON emails.emailId = emailToAddresses.emailId " + 
+                      "INNER JOIN addresses ON emailToAddresses.addressId = addresses.addressId";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, emailAddress);
         ResultSet rs = ps.executeQuery();
         return rs;
     }
@@ -544,15 +483,7 @@ public class DatabaseDAO {
         return addressId;
     }
     
-    public ResultSet findEmailsFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
-        String sql = "SELECT * FROM emails WHERE addresses.emailAddress = ?" + 
-                      "INNER JOIN emailToAddresses ON emails.emailId = emailToAddresses.emailId " + 
-                      "INNER JOIN addresses ON emailToAddresses.addressId = addresses.addressId";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, emailAddress);
-        ResultSet rs = ps.executeQuery();
-        return rs;
-    }
+    
     
     private ArrayList<EmailAddress> findAllSendingAddressesInEmailBean(EmailBean emailBean){
         HashSet<EmailAddress> setOfAddresses = new HashSet<EmailAddress>();
@@ -567,5 +498,22 @@ public class DatabaseDAO {
         }
         ArrayList<EmailAddress> addressList = new ArrayList<EmailAddress>(setOfAddresses);
         return addressList;
+    }
+    
+    /**
+     * 
+     * @param connection the connection this is all done through
+     * @param folderName
+     * @return
+     * @throws SQLException 
+     */
+    private int getFolderIdFromName(Connection connection, String folderName) throws SQLException{
+        String sql = "SELECT * FROM folders WHERE name = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, folderName);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int folderId = rs.getInt("folderId");
+        return folderId;
     }
 }

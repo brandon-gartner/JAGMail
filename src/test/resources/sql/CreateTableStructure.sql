@@ -68,11 +68,3 @@ CREATE TABLE emailToAddresses (
     CONSTRAINT emailExistsEmailToAddresses FOREIGN KEY (emailId) REFERENCES emails (emailId),
     CONSTRAINT addressExists FOREIGN KEY (addressId) REFERENCES addresses (addressId)
 );
-
-
-CREATE TABLE emailAttachments (
-    emailId INT,
-    attachmentId INT,
-    CONSTRAINT emailExistsEmailAttachments FOREIGN KEY (emailId) REFERENCES emails (emailId),
-    CONSTRAINT attachmentExists FOREIGN KEY (attachmentId) REFERENCES attachments (attachmentId)
-);
