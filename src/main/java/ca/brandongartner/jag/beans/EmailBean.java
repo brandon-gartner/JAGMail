@@ -5,6 +5,7 @@
  */
 package ca.brandongartner.jag.beans;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,11 +26,8 @@ public class EmailBean {
     
     private Email containedEmail;
     private int folderId;
-    private java.sql.Timestamp receivedDate;
-    private java.sql.Timestamp sentDate;
     private int emailId;
     
-    //WARNING, CHANGE THIS TO THE INDIVIDUAL EMAIL THINGS LATER
     public Email getEmail(){
         return this.containedEmail;
     }
@@ -38,12 +36,8 @@ public class EmailBean {
         return this.folderId;
     }
     
-    public java.sql.Timestamp getReceivedDate(){
-        return this.receivedDate;
-    }
-    
     public java.sql.Timestamp getSentDate(){
-        return this.sentDate;
+        return new java.sql.Timestamp(containedEmail.sentDate().getTime());
     }
     
     public int getEmailId(){
@@ -100,15 +94,9 @@ public class EmailBean {
         this.folderId = folderId;
     }
     
-    public void setReceivedDate(java.sql.Timestamp timestamp){
-        this.receivedDate = timestamp;
-    }
-    
-    public void setSentDate(java.sql.Timestamp timestamp){
-        this.sentDate = timestamp;
-    }
     
     public void setEmailId(int newId){
         this.emailId = newId;
     }
+    
 }

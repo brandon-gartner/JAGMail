@@ -7,6 +7,7 @@ package ca.brandongartner.jag.mail_database;
 
 import ca.brandongartner.jag.beans.AttachmentBean;
 import ca.brandongartner.jag.beans.EmailBean;
+import ca.brandongartner.jag.beans.MailConfigBean;
 import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,21 +17,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import jodd.mail.EmailAddress;
 import javax.activation.DataSource;
 import jodd.mail.EmailAttachment;
 
-
-//GENERAL TODO:
-//FINISH CREATE SETTING UP BRIDGING TABLE FOR ADDRESSES
-//UPDATE/DELETE
-//COMMENTS
-//LOG4J
+//TODO: 
+//EMAILBEAN GENERATOR FROM FINDEMAIL RESULTSET
+//THINGS THAT NEED TO BE FIXED FOR RESUBMISSION TIME
+//METHOD TO CREATE EMAILBEAN FROM A FIND METHOD RESULTSET
 //TESTING
-//TODO: EMAILBEAN GENERATOR FROM FINDEMAIL RESULTSET
+//BUG FIXING
 
 /**
  * CRUD methods for a basic single-user email database
@@ -44,6 +45,12 @@ public class DatabaseDAO {
     private final String user = "root";
     private final String password = "dawson";
     
+    private MailConfigBean instanceConfig;
+    
+    public DatabaseDAO(MailConfigBean configBean){
+        this.instanceConfig = configBean;
+    }
+    
     /**
      * creates a connection for the current instance to use to connect to the database
      * @return
@@ -51,7 +58,7 @@ public class DatabaseDAO {
      */
     private Connection generateConnection() throws SQLException{
         try{
-            Connection connection = DriverManager.getConnection(this.url, this.user, this.password);
+            Connection connection = DriverManager.getConnection(instanceConfig.getMySqlURL(), instanceConfig.getMySqlUsername(), instanceConfig.getMySqlPassword());
             LOG.trace("Connection created.");
             return connection;
         }
@@ -96,20 +103,21 @@ public class DatabaseDAO {
         LOG.trace("Added all attachments to the attachment table.");
         
         //create sql statement, prepare it, insert data into it
-        //TODO: private method this
         String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from)" + 
-                      " VALUES (?, ?, ?, ?, ?, ?)";
+                      " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, emailBean.getSubject());
         ps.setString(2, emailBean.getMessage());
         ps.setString(3, emailBean.getHtmlMessage());
-        ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+        ps.setTimestamp(4, emailBean.getSentDate());
+        ps.setTimestamp(5, getReceivedDate(folderName));
         int folderId = getFolderIdFromName(connection, folderName);
         ps.setInt(6, folderId);
         int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
         ps.setInt(7, fromId);
+        LOG.info("Finished setting parameters to insert an email.");
         counter += ps.executeUpdate();
-        
+        LOG.trace("Executed query.");
         //getting the emailId and saving it to the bean
         ResultSet rs = ps.getGeneratedKeys();
         if (rs.next()){
@@ -119,10 +127,24 @@ public class DatabaseDAO {
         
         //adding the addresses to the right places
         addToEmailsToAddresses(connection, emailBean);
-        //get from field
-        //create bridging tables
-        //insert email
+        LOG.trace("Added emails to bridging table.");
+        LOG.trace("Finished adding email to database.");
         return counter;
+    }
+    
+    /**
+     * decides on what the receive date should be, based on the folder it's being inserted into
+     * @param folderName the folder which the email is being inserted into
+     * @return the date
+     */
+    private Timestamp getReceivedDate(String folderName){
+        switch (folderName){
+            case "Sent":
+            case "Draft":
+                return null;
+            default:
+                return Timestamp.valueOf(LocalDateTime.now());
+        }
     }
     
     /**
@@ -541,7 +563,6 @@ public class DatabaseDAO {
     //DELETE/PRIVATE METHODS TO DELETE
     
     //DELETE ALL EMAILS FROM EMAILTOADDRESSES WITH A CERTAIN EMAIL ADDRESS, DELETE ATTACHMENTS ONLY RELATED TO THE ONE EMAIL
-    
     /**
      * takes an emailId and deletes all of its emailToAddresses entries
      * @param connection the connection this is all done through
@@ -610,6 +631,7 @@ public class DatabaseDAO {
         LOG.trace(("Deleted email."));
         return counter;
     }
+    
     
     //GENERAL UTILITY METHODS
     /**

@@ -46,7 +46,7 @@ CREATE TABLE emails (
     message LONGTEXT,
     htmlMessage LONGTEXT,
     sendDate DATETIME,
-    receiveDate DATETIME,
+    receivedDate DATETIME,
     folderId INT,
     CONSTRAINT folderExists FOREIGN KEY (folderId) REFERENCES folders (folderId) ON DELETE CASCADE,
 
@@ -89,27 +89,28 @@ INSERT INTO addresses (emailAddress, name) VALUES
 ('bg19test@gmail.com', 'Bg19 Test'),
 ('bg20test@gmail.com', 'Bg20 Test');
 
-INSERT INTO emails (from_who, subject, message, htmlMessage, folderId) VALUES
-('bg02test@gmail.com', 'subject1', 'aaaaaaaaaaaaaaa', '<html>1</html>', 2),
-('bg02test@gmail.com', 'subject2', 'bbbbbbbbbbbbb', '<html>2</html>', 3),
-('bg02test@gmail.com', 'subject3', 'ccccccccccccccc', '<html>3</html>', 3),
-('bg01test@gmail.com', 'subject4', 'ddddddddddddd', '<html>4</html>', 1),
-('bg02test@gmail.com', 'subject5', 'eeeeeeeeeeeeeee', '<html>5</html>', 2),
-('bg01test@gmail.com', 'subject6', 'ffffffffffffff', '<html>6</html>', 1),
-('bg02test@gmail.com', 'subject7', 'ggggggggggggggg', '<html>7</html>', 3),
-('bg01test@gmail.com', 'subject8', 'hhhhhhhhhhhhh', '<html>8</html>', 1),
-('bg01test@gmail.com', 'subject9', 'iiiiiiiiiiiiiiiiiiiiiiiiii', '<html>9</html>', 1),
-('bg02test@gmail.com', 'subject10', 'jjjjjjjjjjjjjjjjjjjjj', '<html>10</html>', 2),
-('bg01test@gmail.com', 'subject11', 'kkkkkkkkkkkkkkk', '<html>11</html>', 1),
-('bg01test@gmail.com', 'subject12', 'lllllllllllllllllllllllll', '<html>12</html>', 1),
-('bg01test@gmail.com', 'subject13', 'mmmmmmmmmm', '<html>13</html>', 1),
-('bg01test@gmail.com', 'subject14', 'nnnnnnnnnnnnnnn', '<html>14</html>', 1),
-('bg01test@gmail.com', 'subject15', 'ooooooooooooooo', '<html>15</html>', 1),
-('bg01test@gmail.com', 'subject16', 'ppppppppppppppp', '<html>16</html>', 1),
-('bg01test@gmail.com', 'subject17', 'qqqqqqqqqqqqqqq', '<html>17</html>', 1),
-('bg01test@gmail.com', 'subject18', 'rrrrrrrrrrrrrrrrr', '<html>18</html>', 1),
-('bg01test@gmail.com', 'subject19', 'ssssssssssssssssss', '<html>19</html>', 1),
-('bg01test@gmail.com', 'subject20', 'ttttttttttttttttttt', '<html>20</html>', 1);
+
+INSERT INTO emails (from_who, subject, message, htmlMessage, sendDate, receivedDate, folderId) VALUES
+('bg02test@gmail.com', 'subject1', 'aaaaaaaaaaaaaaa', '<html>1</html>', CURRENT_TIMESTAMP(), NULL, 2),
+('bg02test@gmail.com', 'subject2', 'bbbbbbbbbbbbb', '<html>2</html>', NULL, NULL, 3),
+('bg02test@gmail.com', 'subject3', 'ccccccccccccccc', '<html>3</html>', NULL, NULL, 3),
+('bg01test@gmail.com', 'subject4', 'ddddddddddddd', '<html>4</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg02test@gmail.com', 'subject5', 'eeeeeeeeeeeeeee', '<html>5</html>', CURRENT_TIMESTAMP(), NULL, 2),
+('bg01test@gmail.com', 'subject6', 'ffffffffffffff', '<html>6</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg02test@gmail.com', 'subject7', 'ggggggggggggggg', '<html>7</html>', NULL, NULL, 3),
+('bg01test@gmail.com', 'subject8', 'hhhhhhhhhhhhh', '<html>8</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject9', 'iiiiiiiiiiiiiiiiiiiiiiiiii', '<html>9</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg02test@gmail.com', 'subject10', 'jjjjjjjjjjjjjjjjjjjjj', '<html>10</html>', CURRENT_TIMESTAMP(), NULL, 2),
+('bg01test@gmail.com', 'subject11', 'kkkkkkkkkkkkkkk', '<html>11</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject12', 'lllllllllllllllllllllllll', '<html>12</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject13', 'mmmmmmmmmm', '<html>13</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject14', 'nnnnnnnnnnnnnnn', '<html>14</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject15', 'ooooooooooooooo', '<html>15</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject16', 'ppppppppppppppp', '<html>16</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject17', 'qqqqqqqqqqqqqqq', '<html>17</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject18', 'rrrrrrrrrrrrrrrrr', '<html>18</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject19', 'ssssssssssssssssss', '<html>19</html>', NULL, CURRENT_TIMESTAMP(), 1),
+('bg01test@gmail.com', 'subject20', 'ttttttttttttttttttt', '<html>20</html>', NULL, CURRENT_TIMESTAMP(), 1);
 
 INSERT INTO emailToAddresses (emailId, addressId, type) VALUES
 (1,1,'to'),

@@ -7,12 +7,27 @@ package ca.brandongartner.jag.mail_database_tests;
 
 import ca.brandongartner.jag.beans.AttachmentBean;
 import ca.brandongartner.jag.beans.EmailBean;
+import ca.brandongartner.jag.beans.MailConfigBean;
+import ca.brandongartner.jag.mail_database.DatabaseDAO;
+import java.io.BufferedReader;
 import java.io.File;
-import java.sql.ResultSet;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 import jodd.mail.Email;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //things that are probably broken
 //deleting messages
@@ -28,173 +43,89 @@ import org.junit.Test;
  * @author Brandon Gartner
  */
 public class TestDatabaseMethods {
-    Email email1 = new Email();
-    Email email2 = new Email();
-    String message1 = "hi";
-    String message2 = "hi2.0";
-    String subject1 = "hello there";
-    String subject2 = "general kenobi";
-    String htmlMessage1 = "<!DOCTYPE html><html><body><h1>yes</h1><p>no</p></body></html>";
-    String htmlMessage2 = "<!DOCTYPE html><html><body><h1>no</h1><p>yes</p></body></html>";
-    String emailAddress1 = "bg01test@gmail.com";
-    String emailAddress2 = "bg02test@gmail.com";
-    String emailAddress3 = "bg03test@gmail.com";
-    String emailAddress4 = "bg04test@gmail.com";
-    EmailBean emailBean1 = new EmailBean();
-    EmailBean emailBean2 = new EmailBean();
-    AttachmentBean attachmentBean1 = new AttachmentBean();
-    AttachmentBean attachmentBean2 = new AttachmentBean();
-    File bliss = new File("bliss.png");
-    File blue = new File("blue.png");
-    ArrayList<File> singleFile = new ArrayList<File>();
-    ArrayList<File> doubleFile = new ArrayList<File>();
-    //insert email
-    //create folder
-    //findstringinemail
-    //findemailinfolder
-    //updateEmailFolder
-    //deleteEmail
-    //findEmailsfromEmailAddress
+    MailConfigBean configBean = new MailConfigBean();
+    private final static Logger LOG = LoggerFactory.getLogger(TestDatabaseMethods.class);
+    private DatabaseDAO instance;
+
     
+    
+    
+    /**
+     * The database is recreated before each test. If the last test is destructive then the database is in an unstable state. @AfterClass is called just once
+     * when the test class is finished with by the JUnit framework. It is instantiating the test class anonymously so that it can execute its non-static
+     * seedDatabase routine.
+     */
+    @AfterClass
+    public static void seedAfterTestCompleted() {
+        new TestDatabaseMethods().seedDatabase();
+    }
+
+    /**
+     * This routine recreates the database before every test. This makes sure that a destructive test will not interfere with any other test. Does not support
+     * stored procedures.
+     *
+     * This routine is courtesy of Bartosz Majsak, an Arquillian developer at JBoss
+     */
     @Before
-    public void ranBeforeTests(){
-        singleFile.add(bliss);
-        doubleFile.add(bliss);
-        doubleFile.add(blue);
-        email1.to(emailAddress2);
-        email1.cc(emailAddress3);
-        email1.bcc(emailAddress4);
-        email1.subject(subject1);
-        email1.textMessage(message1);
-        emailBean1.setEmail(email1);
-        
-    }
-    
-    //1.1
-    @Test
-    public void testInsertEmail(){
-        
-    }
-    
-    //1.2
-    @Test
-    
-    //1.3
-    @Test
-    
-    //1.4
-    @Test
-    
-    //1.5
-    @Test
-    
-    //2.1
-    @Test
-    
-    //2.2
-    @Test
-    
-    //2.3
-    @Test
-    
-    //2.4
-    @Test
-    
-    //2.5
-    @Test
-    
-    //3.1
-    @Test
-    
-    //3.2
-    @Test
-    
-    //3.3
-    @Test
-    
-    //3.4
-    @Test
-    
-    //3.5
-    @Test
-    
-    //4.1
-    @Test
-    
-    //4.2
-    @Test
-    
-    //4.3
-    @Test
-    
-    //4.4
-    @Test
-    
-    //4.5
-    @Test
-    
-    //5.1
-    @Test
-    
-    //5.2
-    @Test
-    
-    //5.3
-    @Test
-    
-    //5.4
-    @Test
-    
-    //5.5
-    @Test
-    
-    //6.1
-    @Test
-    
-    //6.2
-    @Test
-    
-    //6.3
-    @Test
-    
-    //6.4
-    @Test
-    
-    //6.5
-    @Test
-    
-    //7.1
-    @Test
-    
-    //7.2
-    @Test
-    
-    //7.3
-    @Test
-    
-    //7.4
-    @Test
-    
-    //7.5
-    @Test
-    
-    private ArrayList<EmailBean> constructEmailBeans(ResultSet rs) throws SQLException{
-        ArrayList<EmailBean> beanList = new ArrayList<EmailBean>();
-        while (rs.next()){
-            EmailBean toReturn = constructIndividualEmailBean(rs);
-            beanList.add(toReturn);
+    public void seedDatabase() {
+        LOG.info("@Before seeding");
+
+        final String seedDataScript = loadAsString("./CreateTableStructure.sql");
+        try ( Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/testdb?zeroDateTimeBehavior=CONVERT_TO_NULL", "root", "dawson");) {
+            for (String statement : splitStatements(new StringReader(seedDataScript), ";")) {
+                connection.prepareStatement(statement).execute();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed seeding database", e);
         }
-        return beanList;
+        MailConfigBean configBean = new MailConfigBean();
+        configBean.setMySqlURL("jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=CONVERT_TO_NULL");
+        configBean.setMySqlUsername("root");
+        configBean.setMySqlPassword("dawson");
+        instance = new DatabaseDAO(configBean);
+    }
+
+    /**
+     * The following methods support the seedDatabse method
+     */
+    private String loadAsString(final String path) {
+        try ( InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);  Scanner scanner = new Scanner(inputStream)) {
+            return scanner.useDelimiter("\\A").next();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to close input stream.", e);
+        }
+    }
+
+    private List<String> splitStatements(Reader reader, String statementDelimiter) {
+        final BufferedReader bufferedReader = new BufferedReader(reader);
+        final StringBuilder sqlStatement = new StringBuilder();
+        final List<String> statements = new LinkedList<>();
+        try {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || isComment(line)) {
+                    continue;
+                }
+                sqlStatement.append(line);
+                if (line.endsWith(statementDelimiter)) {
+                    statements.add(sqlStatement.toString());
+                    sqlStatement.setLength(0);
+                }
+            }
+            return statements;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed parsing sql", e);
+        }
+    }
+
+    private boolean isComment(final String line) {
+        return line.startsWith("--") || line.startsWith("//") || line.startsWith("/*");
     }
     
-    //add attachment functionality to this, add cc/bcc/to if have time
-    private EmailBean constructIndividualEmailBean(ResultSet rs) throws SQLException{
-        EmailBean newBean = new EmailBean();
-        Email email = new Email();
-        email.subject(rs.getString("subject"));
-        email.textMessage(rs.getString("message"));
-        email.htmlMessage(rs.getString("htmlMessage"));
-        
+    //1.1 no time to implement
+    @Test
+    public void testInsertEmail() throws Exception{
+        throw new Exception("");
     }
-    
 }
