@@ -4,7 +4,7 @@
  */
 package ca.brandongartner.jag.mail_business;
 
-import ca.brandongartner.jag.beans.MailConfigBean;
+import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -40,10 +40,10 @@ import jodd.mail.MailException;
  * @version 2.1
  *
  */
-public class MainApplication {
+public class SendReceiveEmail {
 
     // Real programmers use logging
-    private final static Logger LOG = LoggerFactory.getLogger(MainApplication.class);
+    private final static Logger LOG = LoggerFactory.getLogger(SendReceiveEmail.class);
 
     // These must be updated to your email accounts
     // These must be updated to your email accounts
@@ -52,7 +52,7 @@ public class MainApplication {
     // To use this program you need to fill in the following with two Gmail accounts
     // The cc fields can contain any valid email address
     private final String emailSendAddress = "*****";
-    private final MailConfigBean UserBean;
+    private final MailConfigFXMLBean UserBean;
     private final ArrayList<String> emailReceiveAddressList = new ArrayList<String>();
     private final String emailSendAddressPwd = "*****";
     private final String emailReceiveAddressPwd = "*****";
@@ -61,7 +61,7 @@ public class MainApplication {
 
     private final int secondsToSleep = 3;
 
-    public MainApplication(MailConfigBean bean){
+    public SendReceiveEmail(MailConfigFXMLBean bean){
         UserBean = bean;
     }
     

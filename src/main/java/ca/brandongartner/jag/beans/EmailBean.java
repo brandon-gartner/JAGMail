@@ -79,7 +79,7 @@ public class EmailBean {
     }
     
     public String getHtmlMessage(){
-        throw new IllegalArgumentException("Not yet implemented");
+        return containedEmail.messages().get(1).getContent();
     }
     
     public List<EmailAttachment<? extends DataSource>> getAttachments(){

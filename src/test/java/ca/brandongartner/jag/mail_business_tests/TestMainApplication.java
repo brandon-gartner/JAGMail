@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package ca.brandongartner.jag.mail_business_tests;
-import ca.brandongartner.jag.mail_business.MainApplication;
+import ca.brandongartner.jag.mail_business.SendReceiveEmail;
 import ca.brandongartner.jag.beans.MailConfigBean;
 import org.junit.After;
 import org.junit.Before;
@@ -35,8 +35,8 @@ import java.util.List;
 public class TestMainApplication {
     private MailConfigBean sendingConfigBean;
     private MailConfigBean receivingConfigBean;
-    private MainApplication sending;
-    private MainApplication receiving;
+    private SendReceiveEmail sending;
+    private SendReceiveEmail receiving;
     private ArrayList<String> to;
     private ArrayList<String> cc;
     private ArrayList<String> bcc;
@@ -50,10 +50,18 @@ public class TestMainApplication {
      * so that it's ready for the next test
      */
     public void createBeans(){
-        sendingConfigBean = new MailConfigBean("smtp.gmail.com", "bg01test@gmail.com", "Dawson123");
-        receivingConfigBean = new MailConfigBean("imap.gmail.com", "bg02test@gmail.com", "Dawson123");
-        sending = new MainApplication(sendingConfigBean);
-        receiving = new MainApplication(receivingConfigBean);
+        sendingConfigBean = new MailConfigBean();
+        sendingConfigBean.setSmtpUrl("smtp.gmail.com");
+        sendingConfigBean.setUserEmailAddress("bg01test@gmail.com");
+        sendingConfigBean.setPassword("Dawson123");
+        
+        receivingConfigBean = new MailConfigBean();
+        receivingConfigBean.setImapURL("imap.gmail.com");
+        receivingConfigBean.setUserEmailAddress("bg02test@gmail.com");
+        receivingConfigBean.setPassword("Dawson123");
+        
+        sending = new SendReceiveEmail(sendingConfigBean);
+        receiving = new SendReceiveEmail(receivingConfigBean);
         to = new ArrayList<String>();
         cc = new ArrayList<String>();
         bcc = new ArrayList<String>();
@@ -311,8 +319,11 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testBadMailConfigBadEmailOnSend() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean("smtp.gmail.com", "bg0test@gmail.com", "Dawson123");
-        MainApplication testApplication = new MainApplication(brokenBean);
+        MailConfigBean brokenBean = new MailConfigBean();
+        brokenBean.setSmtpUrl("smtp.gmail.com");
+        brokenBean.setUserEmailAddress("bg0test@gmail.com");
+        brokenBean.setPassword("Dawson123");
+        SendReceiveEmail testApplication = new SendReceiveEmail(brokenBean);
         to.add(receivingConfigBean.getUserEmailAddress());
         Email email = testApplication.sendEmail(to, cc, bcc, "", "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "", attachments, embeddedAttachments);
     }
@@ -324,9 +335,12 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testBadMailConfigWrongPassOnSend() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean("smtp.gmail.com", "bg01test@gmail.com", "Dawson1234");
+        MailConfigBean brokenBean = new MailConfigBean();
+        brokenBean.setSmtpUrl("smtp.gmail.com");
+        brokenBean.setUserEmailAddress("bg0test@gmail.com");
+        brokenBean.setPassword("Dawson1234");
         to.add(receivingConfigBean.getUserEmailAddress());
-        MainApplication testApplication = new MainApplication(brokenBean);
+        SendReceiveEmail testApplication = new SendReceiveEmail(brokenBean);
         Email email = testApplication.sendEmail(to, cc, bcc, "", "llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll", "", attachments, embeddedAttachments);
     }
     
@@ -471,8 +485,11 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 30000)
     public void testBadMailConfigBadEmailOnReceive() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean("imap.gmail.com", "bgtest@gmail.com", "Dawson123");
-        MainApplication testApplication = new MainApplication(brokenBean);
+        MailConfigBean brokenBean = new MailConfigBean();
+        brokenBean.setSmtpUrl("smtp.gmail.com");
+        brokenBean.setUserEmailAddress("bgtest@gmail.com");
+        brokenBean.setPassword("Dawson123");
+        SendReceiveEmail testApplication = new SendReceiveEmail(brokenBean);
         to.add(receivingConfigBean.getUserEmailAddress());
         Email email = sending.sendEmail(to, cc, bcc, "", "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "", attachments, embeddedAttachments);
         try{
@@ -490,9 +507,12 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 30000)
     public void testBadMailConfigWrongPassOnReceive() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean("smtp.gmail.com", "bg01test@gmail.com", "Dawson1234");
+        MailConfigBean brokenBean = new MailConfigBean();
+        brokenBean.setSmtpUrl("smtp.gmail.com");
+        brokenBean.setUserEmailAddress("bg0test@gmail.com");
+        brokenBean.setPassword("Dawson1234");
         to.add(receivingConfigBean.getUserEmailAddress());
-        MainApplication testApplication = new MainApplication(brokenBean);
+        SendReceiveEmail testApplication = new SendReceiveEmail(brokenBean);
         Email email = sending.sendEmail(to, cc, bcc, "", "llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll", "", attachments, embeddedAttachments);
         try{
             Thread.sleep(3000);
