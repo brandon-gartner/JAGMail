@@ -37,6 +37,9 @@ public class EmailBean {
     }
     
     public java.sql.Timestamp getSentDate(){
+        if (containedEmail.sentDate() == null){
+            return new java.sql.Timestamp(System.currentTimeMillis());
+        }
         return new java.sql.Timestamp(containedEmail.sentDate().getTime());
     }
     

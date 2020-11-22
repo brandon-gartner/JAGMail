@@ -88,6 +88,10 @@ public class TableFXMLController {
         return emailTable;
     }
     
+    public void setHTMLController(HTMLEditorFXMLController htmlController){
+        this.htmlController = htmlController;
+    }
+    
     /**
      * gets emails to display on the table from the fake dao
      */

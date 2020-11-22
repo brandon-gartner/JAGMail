@@ -63,7 +63,10 @@ public class DatabaseDAO {
      */
     private Connection generateConnection() throws SQLException{
         try{
-            Connection connection = DriverManager.getConnection(instanceConfig.getMySqlURL(), instanceConfig.getMySqlUserName(), instanceConfig.getMySqlPassword());
+            LOG.trace("Attempting to generate a connection.");
+            String connectionString = instanceConfig.getMySqlURL() + ":" + instanceConfig.getMySqlPort() + "/" + instanceConfig.getDatabaseName() + "?zeroDateTimeBehavior=CONVERT_TO_NULL";
+            LOG.debug("Connection string: " + connectionString);
+            Connection connection = DriverManager.getConnection(connectionString, instanceConfig.getMySqlUserName(), instanceConfig.getMySqlPassword());
             LOG.trace("Connection created.");
             return connection;
         }
@@ -828,7 +831,13 @@ public class DatabaseDAO {
         newFxBean.setEmailId((Integer.toString(bean.getEmailId())));
         newFxBean.setFromField(email.from().getEmail());
         newFxBean.setSubjectField(email.subject());
-        newFxBean.setDate(email.sentDate().toString());
+        String date;
+        if (email.sentDate() == null){
+            date = LocalDateTime.now().toString();
+        }else {
+            date = email.sentDate().toString();
+        }
+        newFxBean.setDate(date);
         return newFxBean;
     }
 }

@@ -9,6 +9,7 @@ import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import ca.brandongartner.jag.controllers.RootFXMLController;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.application.Application;
@@ -45,7 +46,7 @@ public class MainAppFX extends Application {
      * @throws IOException if it's unable to open the layout
      */
     @Override
-    public void start(Stage primaryStage) throws IOException{
+    public void start(Stage primaryStage) throws IOException, SQLException{
         this.primaryStage = primaryStage;
         Scene scene;
         if (!retrieveMailConfig()){
@@ -87,27 +88,33 @@ public class MainAppFX extends Application {
      * Load the layout and controller. When the RootLayoutController runs its
      * initialize method all the other containers are created.
      */
-    public void initRootLayout() {
+    public void initRootLayout() throws SQLException {
         currentLocale = Locale.getDefault();
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
-            
-            //RootFXMLController rootController = loader.getController();
-            //rootController.setDAO(DAO);
-            //LOG.debug("Connected DAO");
             
             LOG.debug(">>>>>>>>>" + ResourceBundle.getBundle("MessagesBundle").getString("Title"));
             
             loader.setResources(ResourceBundle.getBundle("MessagesBundle"));
 
             loader.setLocation(MainAppFX.class.getResource("/fxml/RootFXML.fxml"));
+            
             LOG.trace("Set the location of the RootFXML file.");
+            
             rootLayout = (BorderPane) loader.load();
             LOG.debug("Survived looking for root fxml.");
             
-  
-
+            RootFXMLController rootController = loader.getController();
+            rootController.setConfigBean(configBean);
+            rootController.setDAO(DAO);
+            LOG.debug("Connected DAO");
+            
+            LOG.trace("Performing necessary setup after initializing all layouts.");
+            rootController.setDAOs();
+            rootController.displayTree();
+            rootController.sendMailConfigToHTML();
+            
         } catch (IOException ex) {
             errorAlert("initRootLayout()");
             LOG.error("Unable to locate files.", ex);

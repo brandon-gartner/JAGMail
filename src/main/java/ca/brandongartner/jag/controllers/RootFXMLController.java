@@ -1,4 +1,5 @@
 package ca.brandongartner.jag.controllers;
+import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import javafx.event.ActionEvent;
 import java.io.File;
@@ -61,6 +62,8 @@ public class RootFXMLController {
     @FXML // fx:id="saveAttachmentButton"
     private MenuItem saveAttachmentButton;
     
+    private MailConfigFXMLBean configBean;
+    
     private DatabaseDAO DAO;
     private TreeFXMLController treeController;
     private HTMLEditorFXMLController htmlController;
@@ -70,6 +73,10 @@ public class RootFXMLController {
     
     public void setDAO(DatabaseDAO dao){
         this.DAO = dao;
+    }
+    
+    public void setConfigBean(MailConfigFXMLBean configBean){
+        this.configBean = configBean;
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -83,6 +90,7 @@ public class RootFXMLController {
 
         
         initUpperRightLayout();
+        
         LOG.trace("Initialized the table layout.");
         initLowerRightLayout();
         LOG.trace("Initialized the HTMLEditor layout.");
@@ -93,10 +101,14 @@ public class RootFXMLController {
         sendTableControllerToTree();
         LOG.trace("Added the table controller to the tree layout.");
         
+        sendHTMLControllerToTable();
+        LOG.trace("Added the HTMLController to the table layout.");
+        
+        sendMailConfigToHTML();
+        LOG.trace("Sending the configBean to the HTMLEditor");
+        
         LOG.debug("is treeController null? " + ( treeController == null ));
         //try catch for sql exception later, here
-        treeController.displayTree();
-        LOG.trace("Displayed the tree.");
     }
     
     /**
@@ -104,6 +116,14 @@ public class RootFXMLController {
      */
     private void sendTableControllerToTree(){
         treeController.setTableController(tableController);
+    }
+    
+    private void sendHTMLControllerToTable(){
+        tableController.setHTMLController(htmlController);
+    }
+    
+    public void sendMailConfigToHTML(){
+        htmlController.setConfigBean(configBean);
     }
     
     /**
@@ -122,7 +142,6 @@ public class RootFXMLController {
 
             // Give the controller the data object.
             tableController = loader.getController();
-            tableController.setDAO(DAO);
 
             emailTableSpace.getChildren().add(tableView);
             LOG.trace("Added the table view to the table layout.");
@@ -151,8 +170,6 @@ public class RootFXMLController {
             // Give the controller the data object.
             treeController = loader.getController();
             LOG.debug("is treeController null 2? " + ( treeController == null));
-            
-            treeController.setDAO(DAO);
 
             folderTreeSpace.getChildren().add(treeView);
             LOG.trace("Added the tree view to the tree layout.");
@@ -179,7 +196,6 @@ public class RootFXMLController {
 
             // Give the controller the data object.
             htmlController = loader.getController();
-            htmlController.setDAO(DAO);
 
             htmlEditorSpace.getChildren().add(htmlView);
             LOG.trace("Added the HTMLEditor view to the HTMLEditor layout.");
@@ -220,6 +236,16 @@ public class RootFXMLController {
         if (file != null){
             System.out.println("Absolute Path: " + file.getAbsolutePath());
         }
+    }
+    
+    public void setDAOs(){
+        tableController.setDAO(this.DAO);
+        treeController.setDAO(this.DAO);
+        htmlController.setDAO(this.DAO);
+    }
+    
+    public void displayTree() throws SQLException {
+        treeController.displayTree();
     }
     
     /**

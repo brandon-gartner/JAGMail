@@ -6,6 +6,7 @@ import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeCell;
@@ -125,7 +126,10 @@ public class TreeFXMLController {
 
     public void displayTree() throws SQLException {
         LOG.debug("Attempted to begin displaying the folder tree.");
-        ObservableList<FolderBean> folders = DAO.getAllFolders();
+        ObservableList<FolderBean> folders = FXCollections.observableArrayList();
+        LOG.debug("Created the folder list.");
+        
+        folders = DAO.getAllFolders();
         LOG.debug("Is the list of folders null? " + (folders == null));
         if (folders != null){
             for (FolderBean folder : folders){

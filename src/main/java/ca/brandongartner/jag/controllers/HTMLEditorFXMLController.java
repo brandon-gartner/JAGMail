@@ -4,11 +4,18 @@ package ca.brandongartner.jag.controllers;
  * Sample Skeleton for 'HTMLEditorFXML.fxml' Controller Class
  */
 
+import ca.brandongartner.jag.beans.EmailBean;
 import ca.brandongartner.jag.beans.EmailFXBean;
 import ca.brandongartner.jag.beans.FormBean;
 import ca.brandongartner.jag.beans.HTMLEditorFXBean;
+import ca.brandongartner.jag.beans.MailConfigFXMLBean;
+import ca.brandongartner.jag.mail_business.SendReceiveEmail;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
+import java.io.File;
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -18,6 +25,8 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.HTMLEditor;
+import jodd.mail.Email;
+import jodd.mail.ReceivedEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +43,8 @@ public class HTMLEditorFXMLController {
     private FormBean formBean;
     
     private HTMLEditorFXBean htmlBean;
+    
+    private MailConfigFXMLBean configBean;
     
     private DatabaseDAO DAO;
     
@@ -122,15 +133,60 @@ public class HTMLEditorFXMLController {
         
     }
     
+    public void setConfigBean(MailConfigFXMLBean configBean){
+        this.configBean = configBean;
+    }
+    
     
     
     @FXML
-    private void handleSendReceive(){
+    private void handleSendReceive() throws SQLException {
         LOG.trace("User attempted to send an email.");
+        String toList = formBean.getToField();
+        String ccList = formBean.getCCField();
+        String bccList = formBean.getBCCField();
+        String subject = formBean.getSubjectField();
+        String message = "";
+        
+        //we can seemingly only get htmlmessages
+        String htmlMessage = emailHTMLEditor.getHtmlText();
+        LOG.trace("Got all fields from the relevant beans.");
+        
+        ArrayList<String> tos = createNonEmptyEmailListFromUnsplitString(toList);
+        ArrayList<String> ccs = createNonEmptyEmailListFromUnsplitString(ccList);
+        ArrayList<String> bccs = createNonEmptyEmailListFromUnsplitString(bccList);
+        ArrayList<File> attachments = new ArrayList<File>();
+        ArrayList<File> embeddedAttachments = new ArrayList<File>();
+        LOG.trace("Created and removed irrelevant entries from the various lists for sending.");
+        
+        SendReceiveEmail sendReceiver = new SendReceiveEmail(configBean);
+        Email sentEmail = sendReceiver.sendEmail(tos, ccs, bccs, subject, message, htmlMessage, attachments, embeddedAttachments);
+        EmailBean sentEmailBean = new EmailBean();
+        sentEmailBean.setEmail(sentEmail);
+        LOG.trace("Sent the email.");
+        //save email into database in sent
+        DAO.insertEmail(sentEmailBean, "Sent");
+        
+        //receive email
+        //ReceivedEmail[] received = sendReceiver.receiveEmail();
+        
+        //save received email into database
+        /*for (ReceivedEmail email : received){
+            EmailBean emailBean = new EmailBean();
+            emailBean.setEmail(email);
+        }*/
+    }
+    
+    private ArrayList<String> createNonEmptyEmailListFromUnsplitString(String unsplitList){
+        if (!unsplitList.equals("")){
+            return new ArrayList<String>(Arrays.asList(unsplitList.split(",")));
+        } else{
+            return new ArrayList<String>();
+        }
     }
     
     @FXML
-    public void setDAO(DatabaseDAO fakeDAO){
+    public void setDAO(DatabaseDAO DAO){
         this.DAO = DAO;
     }
             

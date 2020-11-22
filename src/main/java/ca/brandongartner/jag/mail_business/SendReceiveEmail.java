@@ -45,19 +45,7 @@ public class SendReceiveEmail {
     // Real programmers use logging
     private final static Logger LOG = LoggerFactory.getLogger(SendReceiveEmail.class);
 
-    // These must be updated to your email accounts
-    // These must be updated to your email accounts
-    private final String smtpServerName = "smtp.gmail.com";
-    private final String imapServerName = "imap.gmail.com";
-    // To use this program you need to fill in the following with two Gmail accounts
-    // The cc fields can contain any valid email address
-    private final String emailSendAddress = "*****";
     private final MailConfigFXMLBean UserBean;
-    private final ArrayList<String> emailReceiveAddressList = new ArrayList<String>();
-    private final String emailSendAddressPwd = "*****";
-    private final String emailReceiveAddressPwd = "*****";
-    private final ArrayList<String> emailCCAddressList = new ArrayList<String>();
-    private final ArrayList<String> emailBCCAddressList = new ArrayList<String>();
 
     private final int secondsToSleep = 3;
 
@@ -135,7 +123,7 @@ public class SendReceiveEmail {
         
         SmtpServer smtpServer = MailServer.create()
                     .ssl(true)
-                    .host(smtpServerName)
+                    .host(UserBean.getSmtpURL())
                     .auth(UserBean.getUserEmailAddress(), UserBean.getPassword())
                     //.debugMode(true)
                     .buildSmtpMailServer();
@@ -149,8 +137,10 @@ public class SendReceiveEmail {
      * @return an imap server
      */
     private ImapServer generateImapServer(){
+        LOG.debug("Email Address: " + UserBean.getUserEmailAddress());
+        LOG.debug("Password: " + UserBean.getPassword());
          ImapServer imapServer = MailServer.create()
-                    .host(imapServerName)
+                    .host(UserBean.getImapURL())
                     .ssl(true)
                     .auth(UserBean.getUserEmailAddress(), UserBean.getPassword())
                     //.debugMode(true)

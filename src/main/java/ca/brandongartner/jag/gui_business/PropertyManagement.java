@@ -77,7 +77,7 @@ public class PropertyManagement {
         Properties properties = new Properties();
         LOG.trace("Started setting the properties of the MailConfigBean.");
         properties.setProperty("userName", config.getUserName());
-        properties.setProperty("emailAddress", config.getUserName());
+        properties.setProperty("emailAddress", config.getUserEmailAddress());
         properties.setProperty("mailPassword", config.getPassword());
         properties.setProperty("imapURL", config.getImapURL());
         properties.setProperty("smtpURL", config.getSmtpURL());
