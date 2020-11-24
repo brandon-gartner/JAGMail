@@ -39,7 +39,7 @@ public class FolderBean {
     public ObservableList<EmailFXBean> getEmails(){
         ObservableList<EmailFXBean> newBeanList = FXCollections.observableArrayList();
         for (EmailFXBean bean : folderBeanList){
-            newBeanList.add(new EmailFXBean(bean.getEmailId(), bean.getFrom(), bean.getSubject(), bean.getDate()));
+            newBeanList.add(new EmailFXBean(bean.getEmailId(), bean.getFrom(), bean.getSubject(), bean.getHtmlField(), bean.getDate()));
         }
         return newBeanList;
     }

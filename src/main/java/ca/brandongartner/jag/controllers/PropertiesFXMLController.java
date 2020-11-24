@@ -117,14 +117,23 @@ public class PropertiesFXMLController {
 
     }
     
-    @FXML //is called when you click cancel, and closes the properties menu
+    /**
+     * cancels the action of setting/changing properties, closing the window
+     * @param event the event of you clicking on the button.
+     */
+    @FXML 
     public void cancelAction(MouseEvent event){
         LOG.trace("Closing the properties window.");
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }
     
-    @FXML //is called when you click save, and saves the config bean to the disk
+    /**
+     * saves the properties you have written to the properties file on the disk
+     * @param event the event of you clicking save
+     * @throws IOException if it can't save the properties to the correct location
+     */
+    @FXML
     public void saveAction(MouseEvent event) throws IOException{
         pm.writeTextProperties("", "config", configBean);
         LOG.trace("Saved the properties.");

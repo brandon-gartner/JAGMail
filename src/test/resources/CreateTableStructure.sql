@@ -26,9 +26,11 @@ CREATE TABLE addresses (
 
 CREATE TABLE attachments (
     attachmentId INT AUTO_INCREMENT,
+    emailId INT,
     file BLOB,
     isEmbedded BOOLEAN,
-    
+    fileName TEXT,
+
     PRIMARY KEY (attachmentId)
 );
 
@@ -95,26 +97,26 @@ INSERT INTO addresses(emailAddress, name) VALUES
 ("bg30test@gmail.com", "Bg30 Test");
 
 INSERT INTO emails(from_who, subject, message, htmlMessage, folderId) VALUES
-("bg01test@gmail.com", "subject1", "aaaaaaaaaaaaaaaaaaa", "<html>1</html>", 1),
-("bg01test@gmail.com", "subject2", "bbbbbbbbbbbbbbbbb", "<html>2</html>", 1),
-("bg02test@gmail.com", "subject3", "ccccccccccccccccccc", "<html>3</html>", 2),
-("bg01test@gmail.com", "subject4", "ddddddddddddddddd", "<html>4</html>", 1),
-("bg02test@gmail.com", "subject5", "eeeeeeeeeeeeeeeeeee", "<html>5</html>", 2),
-("bg01test@gmail.com", "subject6", "fffffffffffffffffff", "<html>6</html>", 1),
-("bg01test@gmail.com", "subject7", "ggggggggggggggggggg", "<html>7</html>", 1),
-("bg01test@gmail.com", "subject8", "hhhhhhhhhhhhhhhhh", "<html>8</html>", 1),
-("bg02test@gmail.com", "subject9", "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", "<html>9</html>", 3),
-("bg01test@gmail.com", "subject10", "jjjjjjjjjjjjjjjjjjjjjjjjjjj", "<html>10</html>", 1),
-("bg02test@gmail.com", "subject11", "kkkkkkkkkkkkkkkkkkkk", "<html>11</html>", 3),
-("bg01test@gmail.com", "subject12", "lllllllllllllllllllllllllllllllll", "<html>12</html>", 1),
-("bg02test@gmail.com", "subject13", "mmmmmmmmmmmmmm", "<html>13</html>", 2),
-("bg01test@gmail.com", "subject14", "nnnnnnnnnnnnnnnnnnn", "<html>14</html>", 1),
-("bg01test@gmail.com", "subject15", "ooooooooooooooooooo", "<html>15</html>", 1),
-("bg01test@gmail.com", "subject16", "ppppppppppppppppppp", "<html>16</html>", 1),
-("bg01test@gmail.com", "subject17", "qqqqqqqqqqqqqqqqqqq", "<html>17</html>", 1),
-("bg02test@gmail.com", "subject18", "rrrrrrrrrrrrrrrrrrrrrr", "<html>18</html>", 3),
-("bg01test@gmail.com", "subject19", "ssssssssssssssssssssss", "<html>19</html>", 1),
-("bg01test@gmail.com", "subject20", "tttttttttttttttttttttt", "<html>20</html>", 1);
+("1", "subject1", "aaaaaaaaaaaaaaaaaaa", "<html>1test</html>", 1),
+("1", "subject2", "bbbbbbbbbbbbbbbbb", "<html>2test</html>", 1),
+("2", "subject3", "ccccccccccccccccccc", "<html>3test</html>", 2),
+("1", "subject4", "ddddddddddddddddd", "<html>4test</html>", 1),
+("2", "subject5", "eeeeeeeeeeeeeeeeeee", "<html>5test</html>", 2),
+("1", "subject6", "fffffffffffffffffff", "<html>6test</html>", 1),
+("1", "subject7", "ggggggggggggggggggg", "<html>7test</html>", 1),
+("1", "subject8", "hhhhhhhhhhhhhhhhh", "<html>8test</html>", 1),
+("2", "subject9", "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", "<html>9test</html>", 3),
+("1", "subject10", "jjjjjjjjjjjjjjjjjjjjjjjjjjj", "<html>10test</html>", 1),
+("2", "subject11", "kkkkkkkkkkkkkkkkkkkk", "<html>11test</html>", 3),
+("1", "subject12", "lllllllllllllllllllllllllllllllll", "<html>12test</html>", 1),
+("2", "subject13", "mmmmmmmmmmmmmm", "<html>13test</html>", 2),
+("1", "subject14", "nnnnnnnnnnnnnnnnnnn", "<html>14test</html>", 1),
+("1", "subject15", "ooooooooooooooooooo", "<html>15test</html>", 1),
+("1", "subject16", "ppppppppppppppppppp", "<html>16test</html>", 1),
+("1", "subject17", "qqqqqqqqqqqqqqqqqqq", "<html>17test</html>", 1),
+("2", "subject18", "rrrrrrrrrrrrrrrrrrrrrr", "<html>18test</html>", 3),
+("1", "subject19", "ssssssssssssssssssssss", "<html>19test</html>", 1),
+("1", "subject20", "tttttttttttttttttttttt", "<html>20test</html>", 1);
 
 INSERT INTO emailToAddresses(emailId, addressId, type) VALUES
 (1,6, "to"),

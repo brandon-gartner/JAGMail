@@ -14,6 +14,7 @@ import jodd.mail.Email;
 import jodd.mail.EmailAddress;
 import jodd.mail.EmailAttachment;
 import jodd.mail.EmailMessage;
+import jodd.mail.ReceivedEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,10 @@ public class EmailBean {
     
     public Email getEmail(){
         return this.containedEmail;
+    }
+    
+    public EmailBean(){
+        
     }
     
     public int getFolderId(){
@@ -100,6 +105,16 @@ public class EmailBean {
     
     public void setEmailId(int newId){
         this.emailId = newId;
+    }
+    
+    public EmailBean(ReceivedEmail received){
+        Email email = new Email();
+        email.sentDate(received.receivedDate());
+        email.from(received.from().toString());
+        email.subject(received.subject());
+        email.textMessage(received.messages().get(0).toString());
+        email.htmlMessage(received.messages().get(1).toString());
+        this.setEmail(email);
     }
     
 }

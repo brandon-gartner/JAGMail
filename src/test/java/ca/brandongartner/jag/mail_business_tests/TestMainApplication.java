@@ -5,7 +5,7 @@
  */
 package ca.brandongartner.jag.mail_business_tests;
 import ca.brandongartner.jag.mail_business.SendReceiveEmail;
-import ca.brandongartner.jag.beans.MailConfigBean;
+import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +33,8 @@ import java.util.List;
 
 
 public class TestMainApplication {
-    private MailConfigBean sendingConfigBean;
-    private MailConfigBean receivingConfigBean;
+    private MailConfigFXMLBean sendingConfigBean;
+    private MailConfigFXMLBean receivingConfigBean;
     private SendReceiveEmail sending;
     private SendReceiveEmail receiving;
     private ArrayList<String> to;
@@ -50,12 +50,12 @@ public class TestMainApplication {
      * so that it's ready for the next test
      */
     public void createBeans(){
-        sendingConfigBean = new MailConfigBean();
-        sendingConfigBean.setSmtpUrl("smtp.gmail.com");
+        sendingConfigBean = new MailConfigFXMLBean();
+        sendingConfigBean.setSmtpURL("smtp.gmail.com");
         sendingConfigBean.setUserEmailAddress("bg01test@gmail.com");
         sendingConfigBean.setPassword("Dawson123");
         
-        receivingConfigBean = new MailConfigBean();
+        receivingConfigBean = new MailConfigFXMLBean();
         receivingConfigBean.setImapURL("imap.gmail.com");
         receivingConfigBean.setUserEmailAddress("bg02test@gmail.com");
         receivingConfigBean.setPassword("Dawson123");
@@ -319,8 +319,8 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testBadMailConfigBadEmailOnSend() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean();
-        brokenBean.setSmtpUrl("smtp.gmail.com");
+        MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
+        brokenBean.setSmtpURL("smtp.gmail.com");
         brokenBean.setUserEmailAddress("bg0test@gmail.com");
         brokenBean.setPassword("Dawson123");
         SendReceiveEmail testApplication = new SendReceiveEmail(brokenBean);
@@ -335,8 +335,8 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testBadMailConfigWrongPassOnSend() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean();
-        brokenBean.setSmtpUrl("smtp.gmail.com");
+        MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
+        brokenBean.setSmtpURL("smtp.gmail.com");
         brokenBean.setUserEmailAddress("bg0test@gmail.com");
         brokenBean.setPassword("Dawson1234");
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -485,8 +485,8 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 30000)
     public void testBadMailConfigBadEmailOnReceive() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean();
-        brokenBean.setSmtpUrl("smtp.gmail.com");
+        MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
+        brokenBean.setSmtpURL("smtp.gmail.com");
         brokenBean.setUserEmailAddress("bgtest@gmail.com");
         brokenBean.setPassword("Dawson123");
         SendReceiveEmail testApplication = new SendReceiveEmail(brokenBean);
@@ -507,8 +507,8 @@ public class TestMainApplication {
     @Ignore
     @Test(expected = MailException.class, timeout = 30000)
     public void testBadMailConfigWrongPassOnReceive() throws MailException{
-        MailConfigBean brokenBean = new MailConfigBean();
-        brokenBean.setSmtpUrl("smtp.gmail.com");
+        MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
+        brokenBean.setSmtpURL("smtp.gmail.com");
         brokenBean.setUserEmailAddress("bg0test@gmail.com");
         brokenBean.setPassword("Dawson1234");
         to.add(receivingConfigBean.getUserEmailAddress());

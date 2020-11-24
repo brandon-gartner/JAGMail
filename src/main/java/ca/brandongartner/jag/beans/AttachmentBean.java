@@ -10,7 +10,7 @@ package ca.brandongartner.jag.beans;
  * @author Brandon Gartner
  */
 public class AttachmentBean {
-    private int id;
+    private int emailId;
     private String fileName;
     private byte[] attachment;
     private boolean isEmbedded;
@@ -24,7 +24,7 @@ public class AttachmentBean {
     }
     
     public void setId(int newId){
-        this.id = newId;
+        this.emailId = newId;
     }
     
     public void setIsEmbedded(boolean isItEmbedded){
@@ -32,7 +32,7 @@ public class AttachmentBean {
     }
     
     public int getId(){
-        return this.id;
+        return this.emailId;
     }
     
     public String getFileName(){

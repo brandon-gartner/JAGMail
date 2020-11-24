@@ -7,6 +7,7 @@ package ca.brandongartner.jag.beans;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import jodd.mail.ReceivedEmail;
 
 /**
  * bean that contains essential email properties, for use with the table component
@@ -16,6 +17,7 @@ public class EmailFXBean {
     private StringProperty emailId;
     private StringProperty fromField;
     private StringProperty subjectField;
+    private StringProperty htmlField;
     //TODO: figure out date, too tired atm
     private StringProperty sentReceivedDate;
     
@@ -25,21 +27,25 @@ public class EmailFXBean {
         fromField = new SimpleStringProperty();
         subjectField = new SimpleStringProperty();
         sentReceivedDate = new SimpleStringProperty();
+        htmlField = new SimpleStringProperty();
         emailId.set("");
         fromField.set("");
         subjectField.set("");
         sentReceivedDate.set("");
+        htmlField.set("");
     }
     
-    public EmailFXBean(String id, String from, String subject, String date){
+    public EmailFXBean(String id, String from, String subject, String htmlMessage, String date){
         emailId = new SimpleStringProperty();
         fromField = new SimpleStringProperty();
         subjectField = new SimpleStringProperty();
         sentReceivedDate = new SimpleStringProperty();
+        htmlField = new SimpleStringProperty();
         emailId.set(id);
         fromField.set(from);
         subjectField.set(subject);
         sentReceivedDate.set(date);
+        htmlField.set(htmlMessage);
     }
     
     public String getEmailId(){
@@ -88,5 +94,24 @@ public class EmailFXBean {
     
     public StringProperty getDateProperty(){
         return sentReceivedDate;
+    }
+    
+    public String getHtmlField(){
+        return htmlField.get();
+    }
+    
+    public void setHtmlField(String newHtml){
+        htmlField.set(newHtml);
+    }
+    
+    public StringProperty getHtmlFieldProperty(){
+        return htmlField;
+    }
+    
+    public EmailFXBean(ReceivedEmail received){
+        this.setDate(received.receivedDate().toString());
+        this.setFromField(received.from().toString());
+        this.setSubjectField(received.subject());
+        this.setHtmlField(received.messages().get(1).toString());
     }
 }

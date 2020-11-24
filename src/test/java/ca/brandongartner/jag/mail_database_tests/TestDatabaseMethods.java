@@ -6,7 +6,7 @@
 package ca.brandongartner.jag.mail_database_tests;
 
 import ca.brandongartner.jag.beans.EmailBean;
-import ca.brandongartner.jag.beans.MailConfigBean;
+import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Brandon Gartner
  */
 public class TestDatabaseMethods {
-    MailConfigBean configBean = new MailConfigBean();
+    MailConfigFXMLBean configBean = new MailConfigFXMLBean();
     private final static Logger LOG = LoggerFactory.getLogger(TestDatabaseMethods.class);
     private DatabaseDAO instance;
     private EmailBean basicEmail;
@@ -146,13 +146,13 @@ public class TestDatabaseMethods {
         configBean.setUserEmailAddress("bg01test@gmail.com");
         configBean.setPassword("dawson123");
         configBean.setImapURL("imap.gmail.com");
-        configBean.setSmtpUrl("smtp.gmail.com");
+        configBean.setSmtpURL("smtp.gmail.com");
         configBean.setImapPort("993");
         configBean.setSmtpPort("465");
-        configBean.setMySqlURL("jdbc:mysql://localhost:3306/EMAILDB?zeroDateTimeBehavior=CONVERT_TO_NULL");
-        configBean.setDatabaseName("emailDB");
+        configBean.setMySqlURL("jdbc:mysql://localhost");
+        configBean.setDatabaseName("EMAILDB");
         configBean.setMySqlPort("3306");
-        configBean.setMySqlUsername("brandon");
+        configBean.setMySqlUserName("brandon");
         configBean.setMySqlPassword("dawson!123");
         instance = new DatabaseDAO(configBean);
         

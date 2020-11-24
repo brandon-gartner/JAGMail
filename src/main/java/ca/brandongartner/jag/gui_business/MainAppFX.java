@@ -17,7 +17,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -114,6 +113,7 @@ public class MainAppFX extends Application {
             rootController.setDAOs();
             rootController.displayTree();
             rootController.sendMailConfigToHTML();
+            rootController.sendTreeToHtml();
             
         } catch (IOException ex) {
             errorAlert("initRootLayout()");

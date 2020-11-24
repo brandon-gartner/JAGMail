@@ -20,12 +20,12 @@ import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.HTMLEditor;
 import jodd.mail.Email;
+import jodd.mail.EmailAttachment;
 import jodd.mail.ReceivedEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +47,10 @@ public class HTMLEditorFXMLController {
     private MailConfigFXMLBean configBean;
     
     private DatabaseDAO DAO;
+    
+    private TreeFXMLController referenceToTree;
+    
+    private RootFXMLController root;
     
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -85,18 +89,17 @@ public class HTMLEditorFXMLController {
         
         adjustWidths();
         
+        LOG.trace("Created bindings for the htmleditor.");
         Bindings.bindBidirectional(toField.textProperty(), formBean.getToFieldProperty());
         Bindings.bindBidirectional(ccField.textProperty(), formBean.getCCFieldProperty());
         Bindings.bindBidirectional(bccField.textProperty(), formBean.getBCCFieldProperty());
         Bindings.bindBidirectional(subjectField.textProperty(), formBean.getSubjectFieldProperty());
-        //Bindings.bindBidirectional(emailHTMLEditor., htmlBean.getHTMLProperty());
 
     }
     
     /**
      * adjusts the widths of the different elements in the htmleditor
      */
-
     private void adjustWidths(){
         LOG.trace("Adjusting the widths inside of the HTML Editor.");
         double width = htmlPane.getWidth();
@@ -108,40 +111,207 @@ public class HTMLEditorFXMLController {
         LOG.trace("Adjusted the widths inside of the HTML Editor.");
     }
     
-    @FXML
-    private void draggedOnto(DragEvent event){
-        LOG.trace("DraggedOnto triggered.");
-        
-        //only accept it if the source is something aside from this, or 
-    }
-    
-    @FXML
-    private void draggedDropped(DragEvent event){
-        LOG.trace("DraggedDropped triggered.");
-        Dragboard dragboard = event.getDragboard();
-        boolean succeeded = false;
-        if (dragboard.hasString()){
-            //TODO: apply email text
-            emailHTMLEditor.setHtmlText(dragboard.getString());
-            succeeded = true;
-        }
-        //let the source know whether it worked or not
-        
-        event.setDropCompleted(succeeded);
-        
-        event.consume();
-        
-    }
-    
+    /**
+     * set the mailconfigbean we wish to use for this controller
+     * @param configBean the bean we wish to set
+     */
     public void setConfigBean(MailConfigFXMLBean configBean){
         this.configBean = configBean;
     }
     
+    /**
+     * set the treefxmlcontroller we want to use to reference the tree
+     * @param tree the treefxmlcontroller we wish to reference
+     */
+    public void setReferenceToTree(TreeFXMLController tree){
+        this.referenceToTree = tree;
+    }
     
+    /**
+     * set the rootcontroller we wish to have a reference to (for attachments)
+     * @param root the rootcontroller we'll reference
+     */
+    public void setRootController(RootFXMLController root){
+        this.root = root;
+    }
     
+    /**
+     * generates and sends an email.  then, waits 5 seconds, and then receives emails from the server, and updates the table
+     * @param event the event of clicking on the button
+     * @throws SQLException 
+     */
     @FXML
-    private void handleSendReceive() throws SQLException {
-        LOG.trace("User attempted to send an email.");
+    private void handleSendReceive(MouseEvent event) throws SQLException {
+        LOG.trace("Detected an attempt to send an email.");
+        SendReceiveEmail sendReceiver = new SendReceiveEmail(configBean);
+        Email sentEmail = sendEmailFromFields(sendReceiver);
+        EmailBean sentEmailBean = new EmailBean();
+        sentEmailBean.setEmail(sentEmail);
+        LOG.trace("Sent the email.");
+        //save email into database in sent
+        DAO.insertEmail(sentEmailBean, "Sent");
+        
+        try{
+            LOG.trace("Pausing to wait for new email, in case we sent to ourselves.");
+            Thread.sleep(5000);
+        } catch (InterruptedException e){
+            //do nothing
+        }
+        //receive email
+        ReceivedEmail[] received = sendReceiver.receiveEmail();
+        LOG.trace("Received new emails from the database.");
+        //save received email into database
+        ArrayList<EmailBean> receivedEmailBeans = new ArrayList<EmailBean>();
+        for (ReceivedEmail email : received){
+            EmailBean newBean = new EmailBean(email);
+            receivedEmailBeans.add(newBean);
+        }
+        
+        LOG.trace("Finished converting all received emails to email beans.");
+        
+        for (EmailBean emailBean : receivedEmailBeans){
+            DAO.insertEmail(emailBean, "Inbox");
+        }
+        LOG.trace("Finished inserting received emails into the database.");
+        
+        referenceToTree.displayTree();
+        LOG.trace("Updated tree, and emails stored in memory.");
+    }
+    
+    /**
+     * takes a string.  if it is empty, returns an empty arraylist.  if it is full, returns a string arraylist, splitting the original string over commas
+     * @param unsplitList the string we want to split into a list
+     * @return the arraylist of strings
+     */
+    private ArrayList<String> createNonEmptyEmailListFromUnsplitString(String unsplitList){
+        if (!unsplitList.equals("")){
+            return new ArrayList<String>(Arrays.asList(unsplitList.split(",")));
+        } else{
+            return new ArrayList<String>();
+        }
+    }
+    
+    /**
+     * sets this controller's DAO to the given one
+     * @param DAO the DAO to set to
+     */
+    @FXML
+    public void setDAO(DatabaseDAO DAO){
+        this.DAO = DAO;
+    }
+    
+    /**
+     * updates the fields on the htmlController to reflect an emailfxbean
+     * @param bean the bean which we should update the fields to reflect.
+     */
+    @FXML
+    public void modifyFields(EmailFXBean bean){
+        clearFields();
+        
+        //necessary so that multiple file arrays don't get mixed together.
+        root.clearFiles();
+        formBean.setToField(bean.getFrom());
+        formBean.setSubjectField(bean.getSubject());
+        this.emailHTMLEditor.setHtmlText(bean.getHtmlField());
+    }
+    
+    /**
+     * empties all of the htmleditor's fields
+     */
+    private void clearFields(){
+        formBean.setToField("");
+        formBean.setSubjectField("");
+        formBean.setCCField("");
+        formBean.setBCCField("");
+        this.emailHTMLEditor.setHtmlText("");
+        root.clearFiles();
+    }
+    
+    /**
+     * saves a draft email into the drafts
+     * @param event the event of clicking on the associated button
+     * @throws SQLException 
+     */
+    @FXML
+    private void handleSave(MouseEvent event) throws SQLException {
+        LOG.trace("User attempted to save.");
+        Email draft = generateDraftFromFields();
+        
+        EmailBean bean = new EmailBean();
+        bean.setEmail(draft);
+        LOG.trace("Attempting to save draft to database.");
+        DAO.insertEmail(bean, "Drafts");
+        
+        LOG.trace("Draft saved!");
+        
+        referenceToTree.displayTree();
+        LOG.trace("Re-displayed the tree.");
+    }
+    
+    /**
+     * gets email data from each field on the htmleditor form, and compiles them into an email object, which is then returned
+     * @return the constructed email
+     */
+    private Email generateDraftFromFields(){
+        String from = configBean.getUserEmailAddress();
+        String toList = formBean.getToField();
+        String ccList = formBean.getCCField();
+        String bccList = formBean.getBCCField();
+        String subject = formBean.getSubjectField();
+        String message = "";
+        
+        //we can seemingly only get htmlmessages
+        String containedHtmlMessage = emailHTMLEditor.getHtmlText();
+        LOG.trace("Got all fields from the relevant beans.");
+        
+        ArrayList<String> tos = createNonEmptyEmailListFromUnsplitString(toList);
+        ArrayList<String> ccs = createNonEmptyEmailListFromUnsplitString(ccList);
+        ArrayList<String> bccs = createNonEmptyEmailListFromUnsplitString(bccList);
+        ArrayList<File> attachments = new ArrayList<File>();
+        ArrayList<File> embeddedAttachments = new ArrayList<File>();
+        LOG.trace("Created and removed irrelevant entries from the various lists for sending.");
+        
+        Email email = new Email();
+        
+        email.from(from);
+        email.subject(subject);
+        email.textMessage(message);
+        email.htmlMessage(containedHtmlMessage);
+        
+        LOG.trace("Applying tos to the draft.");
+        for (String address : tos){
+            email.to(address);
+        }
+        LOG.trace("Applying ccs to the draft.");
+        for (String address : ccs){
+            email.cc(address);
+        }
+        LOG.trace("Applying bccs to the draft.");
+        for (String address : bccs){
+            email.bcc(address);
+        }
+        LOG.trace("Applying attachments to the draft.");
+        for (File file : attachments){
+            email.attachment(EmailAttachment.with().content(file));
+        }
+        LOG.trace("Applying embedded attachments to the draft.");
+        for (File file : embeddedAttachments){
+            email.embeddedAttachment(EmailAttachment.with().content(file));
+            
+            //appends the appropriate html code to append the file to the email
+            String htmlMessage = "<img width=100 height=100 id=\"1\" src=\"cid:"+ file.getPath() + "\"/>";
+            email.htmlMessage(htmlMessage);
+        }
+        
+        return email;
+    }
+    
+    /**
+     * takes data from all of the htmleditor's fields, and compiles them into an email, which is then sent
+     * @param sendReceiver the sendReceiver tha we will send the email using
+     * @return the email which we have sent
+     */
+    private Email sendEmailFromFields(SendReceiveEmail sendReceiver){
         String toList = formBean.getToField();
         String ccList = formBean.getCCField();
         String bccList = formBean.getBCCField();
@@ -155,51 +325,32 @@ public class HTMLEditorFXMLController {
         ArrayList<String> tos = createNonEmptyEmailListFromUnsplitString(toList);
         ArrayList<String> ccs = createNonEmptyEmailListFromUnsplitString(ccList);
         ArrayList<String> bccs = createNonEmptyEmailListFromUnsplitString(bccList);
-        ArrayList<File> attachments = new ArrayList<File>();
+        ArrayList<File> attachments = root.getCurrentFiles();
         ArrayList<File> embeddedAttachments = new ArrayList<File>();
         LOG.trace("Created and removed irrelevant entries from the various lists for sending.");
         
-        SendReceiveEmail sendReceiver = new SendReceiveEmail(configBean);
+        //successfully combines the fields together, and then sends them
         Email sentEmail = sendReceiver.sendEmail(tos, ccs, bccs, subject, message, htmlMessage, attachments, embeddedAttachments);
-        EmailBean sentEmailBean = new EmailBean();
-        sentEmailBean.setEmail(sentEmail);
-        LOG.trace("Sent the email.");
-        //save email into database in sent
-        DAO.insertEmail(sentEmailBean, "Sent");
-        
-        //receive email
-        //ReceivedEmail[] received = sendReceiver.receiveEmail();
-        
-        //save received email into database
-        /*for (ReceivedEmail email : received){
-            EmailBean emailBean = new EmailBean();
-            emailBean.setEmail(email);
-        }*/
+        LOG.trace("Successfully sent the email!");
+        return sentEmail;
     }
     
-    private ArrayList<String> createNonEmptyEmailListFromUnsplitString(String unsplitList){
-        if (!unsplitList.equals("")){
-            return new ArrayList<String>(Arrays.asList(unsplitList.split(",")));
-        } else{
-            return new ArrayList<String>();
-        }
+    /**
+     * sets up the htmleditor to be replying to an email
+     * @param emailBean the bean of the email you want to reply to
+     */
+    public void replyEmail(EmailFXBean emailBean){
+        LOG.trace("Setting up a reply in the HTMLEditor");
+        modifyFields(emailBean);
     }
     
-    @FXML
-    public void setDAO(DatabaseDAO DAO){
-        this.DAO = DAO;
-    }
-            
-    @FXML //prints out the html text to the log
-    public void displayEmailAsHTML(KeyEvent event){
-        LOG.trace("Text in HTMLEditor: " + emailHTMLEditor.getHtmlText());
-    }
-    
-    @FXML
-    public void modifyFields(EmailFXBean bean){
-        formBean.setToField(bean.getFrom());
-        formBean.setSubjectField(bean.getSubject());
-        //this.emailHTMLEditor.setHtmlText(bean.htmlText());
+    /**
+     * sets up the htmleditor to be forwarding the given emailbean
+     * @param emailBean the emailbean to be forwarded
+     */
+    public void forwardEmail(EmailFXBean emailBean){
+        LOG.trace("Setting up a forward in the HTMLEditor");
+        modifyFields(emailBean);
     }
             
 }

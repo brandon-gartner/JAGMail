@@ -5,15 +5,21 @@ import ca.brandongartner.jag.beans.FolderBean;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
@@ -60,7 +66,7 @@ public class TreeFXMLController {
         
         LOG.trace("Set the root tree component.");
         
-        //setting up how the 
+        LOG.trace("Setting up the tree's factory.");
         treeComponent.setCellFactory((a) -> new TreeCell<FolderBean>() {
             @Override
             protected void updateItem(FolderBean bean, boolean empty){
@@ -95,6 +101,8 @@ public class TreeFXMLController {
         
         //only accept it if it is dragged from somethign else, and has a string
         if ((event.getGestureSource() != treeComponent) && (event.getDragboard().hasString())){
+            LOG.debug(event.getGestureTarget().toString());
+            LOG.debug("Will be accepting drag transfer.");
             //allow for copying/moving
             event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
         }
@@ -103,9 +111,8 @@ public class TreeFXMLController {
     
     /**
      * sets the tree's DAO to be the given one
-     * @param fakeDAO the DAO
+     * @param DatabaseDAO the DAO to be set to this controller
      */
-
     public void setDAO(DatabaseDAO DAO){
         this.DAO = DAO;
         LOG.trace("Added the DAO to the tree component.");
@@ -115,20 +122,21 @@ public class TreeFXMLController {
      * sets this tree's tablecontroller to be the given one
      * @param tableController sets that tablecontroller to be associated with this treecontroller
      */
-
     public void setTableController(TableFXMLController tableController){
         this.tableController = tableController;
     }
     
     /**
-     * gets the folders from the fake dao, displays them on the tree
+     * gets the folders from the DAO, displays them on the tree
      */
-
     public void displayTree() throws SQLException {
+        treeComponent.getRoot().getChildren().clear();
+        LOG.trace("Cleared the old tree.");
         LOG.debug("Attempted to begin displaying the folder tree.");
         ObservableList<FolderBean> folders = FXCollections.observableArrayList();
         LOG.debug("Created the folder list.");
         
+        LOG.trace("Got all folderbeans from the table.");
         folders = DAO.getAllFolders();
         LOG.debug("Is the list of folders null? " + (folders == null));
         if (folders != null){
@@ -147,10 +155,93 @@ public class TreeFXMLController {
         
     }
             
-    //TODO: ask ken what's up with this
+    /**
+     * takes a folderBean and displays all of its emails onto the able.
+     * @param folderBean the folderBean you'd like to display on the table
+     */
     private void updateTable(TreeItem<FolderBean> folderBean){
-        System.out.println(folderBean.getValue().getFolderName());
+        LOG.trace("Swapped to: " + folderBean.getValue().getFolderName());
         ObservableList<EmailFXBean> emails = folderBean.getValue().getEmails();
         tableController.displayTable(emails);
+    }
+    
+    /**
+     * opens a dialog box asking if the user really wants to delete X folder or not
+     * credit to: https://code.makery.ch/blog/javafx-dialogs-official/
+     * @return 
+     */
+    private boolean getConfirmationOnDelete(){
+        LOG.trace("Building the confirmation dialog.");
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Confirm delete.");
+        String folderName = treeComponent.getSelectionModel().getSelectedItem().getValue().getFolderName();
+        alert.setHeaderText("Delete " + folderName + "?");
+        alert.setContentText("Are you really sure you'd like to delete " + folderName + "?");
+        
+        LOG.trace("Waiting for the user's input.");
+        Optional<ButtonType> clicked = alert.showAndWait();
+        if (clicked.get() == ButtonType.OK){
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * gets a string from the user, which is to be the new name of a folder.
+     * credit to: https://code.makery.ch/blog/javafx-dialogs-official/
+     * @return the string the user chose
+     */
+    private String getNewFolderName(){
+        LOG.trace("Creating the dialog to get user input.");
+        TextInputDialog dialog = new TextInputDialog("New folder name");
+        dialog.setTitle("New folder");
+        dialog.setHeaderText("What would you like to name the new folder?");
+        dialog.setContentText("Please enter the name of the new folder.");
+        
+        LOG.trace("Waiting for user input.");
+        Optional<String> name = dialog.showAndWait();
+        if (name.isPresent()){
+            return name.get();
+        }
+        return null;
+    }
+    
+    /**
+     * gets the name the user wants for a new folder, and then creates it, updates the database, and reloads the tree
+     * @param event the event of the user clicking the 'create folder' button
+     * @throws SQLException 
+     */
+    @FXML
+    private void createNewFolder(MouseEvent event) throws SQLException {
+        String newFolderName = getNewFolderName();
+        LOG.trace("Got the name of the new folder.");
+        //if the user didn't enter a name (closed window, for example), it is null, which this filters out
+        if (newFolderName != null){
+            DAO.createFolder(newFolderName);
+            displayTree();
+        }
+    }
+    
+    /**
+     * verifies with the user that they want to delete the selected folder
+     * if they do, deletes the folder from the database.
+     * @param event the event of you clicking the delete folder button
+     * @throws SQLException
+     */
+    @FXML
+    private void deleteSelectedFolder(MouseEvent event) throws SQLException {
+        boolean deleteOk = getConfirmationOnDelete();
+        if (deleteOk){
+            LOG.trace("Delete accepted.");
+            LOG.trace("Deleting folder and contained emails from database.");
+            FolderBean toBeDeleted = treeComponent.getSelectionModel().getSelectedItem().getValue();
+            DAO.deleteFolder(toBeDeleted.getFolderName());
+            
+            LOG.trace("Removing the now-deleted folder from the folder tree.");
+            treeComponent.getRoot().getChildren().remove(toBeDeleted);
+            
+            LOG.trace("Reloading the folder tree.");
+            displayTree();
+        }
     }
 }

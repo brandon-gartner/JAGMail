@@ -3,7 +3,10 @@ import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import javafx.event.ActionEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Sample Skeleton for 'RootFXML.fxml' Controller Class
@@ -12,6 +15,7 @@ import java.io.IOException;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -37,6 +41,8 @@ import org.slf4j.LoggerFactory;
 public class RootFXMLController {
 
     private final static Logger LOG = LoggerFactory.getLogger(RootFXMLController.class);
+    
+    private ArrayList<File> currentFiles;
     
     @FXML // fx:id="backPane"
     private BorderPane backPane;
@@ -107,8 +113,14 @@ public class RootFXMLController {
         sendMailConfigToHTML();
         LOG.trace("Sending the configBean to the HTMLEditor");
         
+        passSelfToHTML();
+        LOG.trace("Passing root to HMTLController");
+        
         LOG.debug("is treeController null? " + ( treeController == null ));
         //try catch for sql exception later, here
+        
+        currentFiles = new ArrayList<File>();
+        LOG.trace("Initialized file arraylist.");
     }
     
     /**
@@ -118,18 +130,57 @@ public class RootFXMLController {
         treeController.setTableController(tableController);
     }
     
+    /**
+     * transfers the rootfxmlcontroller's htmlcontroller to the tableController
+     */
     private void sendHTMLControllerToTable(){
         tableController.setHTMLController(htmlController);
     }
     
+    /**
+     * transfers the rootfxmlcontroller's config bean to the htmlController
+     */
     public void sendMailConfigToHTML(){
         htmlController.setConfigBean(configBean);
     }
     
     /**
+     * transfers the rootfxmlcontroller's treecontroller to the htmlController
+     */
+    public void sendTreeToHtml(){
+        htmlController.setReferenceToTree(treeController);
+    }
+    
+    /**
+     * transfers the rootfxmlcontroller to the htmlController
+     */
+    public void passSelfToHTML(){
+        htmlController.setRootController(this);
+    }
+    
+    /**
+     * gets the files being stored for the current email
+     * @return a copied list of all of the stored files
+     */
+    public ArrayList<File> getCurrentFiles(){
+        ArrayList<File> fileCopy = new ArrayList<File>();
+        for (File f : currentFiles){
+            fileCopy.add(f);
+        }
+        return fileCopy;
+    }
+    
+    /**
+     * clears the files being stored for the current email
+     */
+    public void clearFiles(){
+        currentFiles = new ArrayList<File>();
+        LOG.trace("Cleared the stored files.");
+    }
+    
+    /**
      * initializes the portion of the layout that the table goes onto
      */
-
     private void initUpperRightLayout(){
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -156,7 +207,6 @@ public class RootFXMLController {
     /**
      * initializes the portion of the layout that the foldertree goes on
      */
-
     private void initLeftLayout() {
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -183,7 +233,6 @@ public class RootFXMLController {
     /**
      * initializes the portion of the screen that the htmleditor is on
      */
-
     private void initLowerRightLayout(){
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -210,7 +259,6 @@ public class RootFXMLController {
      * creates an alert error on the screen, getting the text from the resource bundle
      * @param msg message we search the messagebundle for
      */
-
     private void errorAlert(String msg) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
         dialog.setTitle(resources.getString("ioError"));
@@ -223,7 +271,6 @@ public class RootFXMLController {
      * adds a file to an email (add it to a database once we connect to the database)
      * @param event 
      */
-
     @FXML
     public void addFile(ActionEvent event) {
         Stage stage = new Stage();
@@ -234,16 +281,24 @@ public class RootFXMLController {
         LOG.trace("User selected file.");
         
         if (file != null){
-            System.out.println("Absolute Path: " + file.getAbsolutePath());
+            currentFiles.add(file);
         }
     }
     
+    /**
+     * sets the DAOs of the tree, html, and table controllers
+     */
     public void setDAOs(){
         tableController.setDAO(this.DAO);
         treeController.setDAO(this.DAO);
         htmlController.setDAO(this.DAO);
+        LOG.trace("Set the DAOs!");
     }
     
+    /**
+     * makes the treeController update
+     * @throws SQLException 
+     */
     public void displayTree() throws SQLException {
         treeController.displayTree();
     }
@@ -252,27 +307,28 @@ public class RootFXMLController {
      * will save files from emails once we know how/there are files to save
      * @param event 
      */
-
     @FXML 
-    public void saveFile(ActionEvent event) {
-        LOG.trace("Will save file of current email once we know how.");
+    public void saveFile(ActionEvent event) throws FileNotFoundException, IOException {
+        //
+        //OutputStream saveFile = new FileOutputStream(new File(""));
+        //byte[] fileBytes = file.getBytes();
+        //saveFile.write(fileBytes);
+        //saveFile.close();
     }
     
     /**
      * closes the client
      * @param event 
      */
-
     @FXML
     public void closeClient(ActionEvent event){
         Platform.exit();
     }
 
     /**
-     * will open an html file when I know how
+     * opens an about screen, which tells information about the program
      * @param event 
      */
-
     @FXML
     public void handleAbout(ActionEvent event){
         String info = resources.getString("Help");
@@ -286,7 +342,6 @@ public class RootFXMLController {
      * creates a window that has the propertiesfxml layout
      * @throws IOException 
      */
-
     @FXML
     public void createPropertyGUI() throws IOException{
         displayPropertyLayout();
@@ -296,7 +351,6 @@ public class RootFXMLController {
      * creates a stage, a scene, etc. to generate a window containing the propertiesfxml layout
      * @throws IOException if it can't find the file
      */
-
     private void displayPropertyLayout() throws IOException{
         Stage secondaryStage = new Stage();
         Parent propertyLayout;

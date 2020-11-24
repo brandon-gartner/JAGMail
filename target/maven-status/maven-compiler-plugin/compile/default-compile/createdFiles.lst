@@ -1,7 +1,5 @@
-ca\brandongartner\jag\gui_business\FakeDAO.class
 ca\brandongartner\jag\controllers\RootFXMLController.class
 ca\brandongartner\jag\controllers\TreeFXMLController$1.class
-ca\brandongartner\jag\beans\MailConfigBean.class
 ca\brandongartner\jag\beans\EmailFXBean.class
 ca\brandongartner\jag\beans\MailConfigFXMLBean.class
 ca\brandongartner\jag\gui_business\MainAppFX.class
