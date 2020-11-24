@@ -142,21 +142,27 @@ public class HTMLEditorFXMLController {
      */
     @FXML
     private void handleSendReceive(MouseEvent event) throws SQLException {
-        LOG.trace("Detected an attempt to send an email.");
         SendReceiveEmail sendReceiver = new SendReceiveEmail(configBean);
-        Email sentEmail = sendEmailFromFields(sendReceiver);
-        EmailBean sentEmailBean = new EmailBean();
-        sentEmailBean.setEmail(sentEmail);
-        LOG.trace("Sent the email.");
-        //save email into database in sent
-        DAO.insertEmail(sentEmailBean, "Sent");
+        LOG.trace("Detected an attempt to send an email.");
+        if (formBean.getToField() != null && !formBean.getToField().equals("")){
+            LOG.debug("The client is sending an email.");
+            Email sentEmail = sendEmailFromFields(sendReceiver);
+            EmailBean sentEmailBean = new EmailBean();
+            sentEmailBean.setEmail(sentEmail);
+            LOG.trace("Sent the email.");
+            //save email into database in sent
+            DAO.insertEmail(sentEmailBean, "Sent");
         
-        try{
-            LOG.trace("Pausing to wait for new email, in case we sent to ourselves.");
-            Thread.sleep(5000);
-        } catch (InterruptedException e){
-            //do nothing
+            try{
+                LOG.trace("Pausing to wait for new email, in case we sent to ourselves.");
+                Thread.sleep(5000);
+            } catch (InterruptedException e){
+                //do nothing
+            }
+        } else {
+            LOG.trace("To field was empty, so the user only wanted to receive emails.  The sending process has been skipped.");
         }
+        
         //receive email
         ReceivedEmail[] received = sendReceiver.receiveEmail();
         LOG.trace("Received new emails from the database.");
@@ -201,7 +207,7 @@ public class HTMLEditorFXMLController {
     }
     
     /**
-     * updates the fields on the htmlController to reflect an emailfxbean
+     * updates the fields on the htmlController to reflect an emailfxbean.  also sets it up to appropriately reply to an email
      * @param bean the bean which we should update the fields to reflect.
      */
     @FXML
@@ -212,7 +218,7 @@ public class HTMLEditorFXMLController {
         root.clearFiles();
         formBean.setToField(bean.getFrom());
         formBean.setSubjectField(bean.getSubject());
-        this.emailHTMLEditor.setHtmlText(bean.getHtmlField());
+        this.emailHTMLEditor.setHtmlText(bean.getHtmlField().toString());
     }
     
     /**
@@ -313,6 +319,9 @@ public class HTMLEditorFXMLController {
      */
     private Email sendEmailFromFields(SendReceiveEmail sendReceiver){
         String toList = formBean.getToField();
+        if (toList == null){
+            
+        }
         String ccList = formBean.getCCField();
         String bccList = formBean.getBCCField();
         String subject = formBean.getSubjectField();
@@ -340,7 +349,6 @@ public class HTMLEditorFXMLController {
      * @param emailBean the bean of the email you want to reply to
      */
     public void replyEmail(EmailFXBean emailBean){
-        LOG.trace("Setting up a reply in the HTMLEditor");
         modifyFields(emailBean);
     }
     
@@ -349,8 +357,9 @@ public class HTMLEditorFXMLController {
      * @param emailBean the emailbean to be forwarded
      */
     public void forwardEmail(EmailFXBean emailBean){
-        LOG.trace("Setting up a forward in the HTMLEditor");
-        modifyFields(emailBean);
+        formBean.setToField("");
+        formBean.setSubjectField("FW: " + emailBean.getSubject());
+        this.emailHTMLEditor.setHtmlText("<hr> \n" + emailBean.getDate() + "<br>" + emailBean.getHtmlField() + "\n");
     }
             
 }

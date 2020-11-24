@@ -98,8 +98,6 @@ public class DatabaseDAO {
         Connection connection = generateConnection();
         int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
         LOG.trace("Added all forms of recipients to the addresses table.");
-        counter += addAttachmentsToAttachmentTable(connection, emailBean);
-        LOG.trace("Added all attachments to the attachment table.");
         
         //create sql statement, prepare it, insert data into it
         String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from_who)" + 
@@ -128,6 +126,9 @@ public class DatabaseDAO {
             int emailId = rs.getInt(1);
             emailBean.setEmailId(emailId);
         }
+        
+        counter += addAttachmentsToAttachmentTable(connection, emailBean);
+        LOG.trace("Added all attachments to the attachment table.");
         
         //adding the addresses to the right places
         addToEmailsToAddresses(connection, emailBean);
@@ -418,8 +419,7 @@ public class DatabaseDAO {
         HashSet<AttachmentBean> attachmentSet = getAttachmentSet(emailBean);
         String sql = "INSERT INTO attachments (file, isEmbedded, emailId, fileName) VALUES (?, ?, ?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql, 
-                                ResultSet.TYPE_SCROLL_INSENSITIVE, 
-                                ResultSet.CONCUR_READ_ONLY);
+                                Statement.RETURN_GENERATED_KEYS);
         int counter = 0;
         for (AttachmentBean bean : attachmentSet){
             ps.setBytes(1, bean.getAttachment());
@@ -543,6 +543,7 @@ public class DatabaseDAO {
     public int updateEmailFolder(int emailId, String folderName) throws SQLException{
         Connection connection = generateConnection();
         if (checkIfFolderExists(connection, folderName)){
+            LOG.debug("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>" + checkIfFolderExists(connection, folderName));
             String sql = "UPDATE emails SET folderId = ? WHERE emailId = ?";
             PreparedStatement ps = connection.prepareStatement(sql, 
                                 ResultSet.TYPE_SCROLL_INSENSITIVE, 
@@ -564,6 +565,7 @@ public class DatabaseDAO {
     //UPDATE EMAILS (IF IN DRAFTS)
     /**
      * takes an emailBean, and replaces the old version of it in the database with what's in the emailBean now.  we assume they are in drafts, since we'll be able to verify that more easily once we're doing GUI
+     * if nothing is deleted, nothing will be added, either
      * @param emailBean the emailBean of the email you'd like to update
      * @return the amount of rows modified
      * @throws SQLException 
@@ -572,9 +574,14 @@ public class DatabaseDAO {
         LOG.trace("Began updating draft email.");
         int counter = deleteEmail(emailBean.getEmailId());
         LOG.trace("Deleted email.");
-        counter += insertEmail(emailBean, "Drafts");
-        LOG.trace("Inserted updated email.");
-        return counter;
+        if (counter > 0){
+            counter += insertEmail(emailBean, "Drafts");
+            LOG.trace("Inserted updated email.");
+            return counter;
+        } else {
+            LOG.warn("That was not a real draft email");
+            return counter;
+        }
     }
     
     /**
@@ -635,7 +642,6 @@ public class DatabaseDAO {
      * @return the amount of rows modified
      * @throws SQLException if it fails to set the int, prepaer the statement, or execute the update
      */
-    /*
     private int deleteRelatedAttachments(Connection connection, int emailId) throws SQLException{
         String sql = "DELETE FROM attachments WHERE emailId = ?";
         PreparedStatement ps = connection.prepareStatement(sql, 
@@ -646,7 +652,7 @@ public class DatabaseDAO {
         int counter = ps.executeUpdate();
         LOG.trace("Executed query.");
         return counter;
-    }*/
+    }
     
     /**
      * deletes the email with the specified emailId from the email table
@@ -676,9 +682,9 @@ public class DatabaseDAO {
     public int deleteEmail(int emailId) throws SQLException {
         LOG.info("Beginning email deletion");
         Connection connection = generateConnection();
-        //int counter = deleteRelatedAttachments(connection, emailId);
+        int counter = deleteRelatedAttachments(connection, emailId);
         LOG.trace("Deleted attachments.");
-        int counter = deleteRelatedEmailToAddresses(connection, emailId);
+        counter += deleteRelatedEmailToAddresses(connection, emailId);
         LOG.trace("Deleted emailToAddress entries.");
         counter += deleteEmailsFromTable(connection, emailId);
         LOG.trace(("Deleted email."));
@@ -802,7 +808,12 @@ public class DatabaseDAO {
         return email;
     }
     
-    private ArrayList<String> getAllFolderNames() throws SQLException{
+    /**
+     * gets the names of all folders that exist on the database
+     * @return an arraylist of all foldernames
+     * @throws SQLException 
+     */
+    public ArrayList<String> getAllFolderNames() throws SQLException{
         LOG.trace("Attempting to get the names of all folders in the database.");
         String sql = "SELECT * FROM folders";
         ArrayList<String> folderNames = new ArrayList<String>();

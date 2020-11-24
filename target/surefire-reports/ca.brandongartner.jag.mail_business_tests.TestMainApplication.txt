@@ -1,4 +1,28 @@
 -------------------------------------------------------------------------------
 Test set: ca.brandongartner.jag.mail_business_tests.TestMainApplication
 -------------------------------------------------------------------------------
-Tests run: 24, Failures: 0, Errors: 0, Skipped: 24, Time elapsed: 0.005 s - in ca.brandongartner.jag.mail_business_tests.TestMainApplication
+Tests run: 24, Failures: 0, Errors: 4, Skipped: 0, Time elapsed: 131.185 s <<< FAILURE! - in ca.brandongartner.jag.mail_business_tests.TestMainApplication
+testEmailFieldsSame  Time elapsed: 8.377 s  <<< ERROR!
+jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:442)
+Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:442)
+
+testRetrievingReturningArrayofReceivedEmails  Time elapsed: 8.413 s  <<< ERROR!
+jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testRetrievingReturningArrayofReceivedEmails(TestMainApplication.java:366)
+Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testRetrievingReturningArrayofReceivedEmails(TestMainApplication.java:366)
+
+testDoubleReceive  Time elapsed: 8.343 s  <<< ERROR!
+jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testDoubleReceive(TestMainApplication.java:417)
+Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testDoubleReceive(TestMainApplication.java:417)
+
+testReceivingEmails  Time elapsed: 3.445 s  <<< ERROR!
+jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testReceivingEmails(TestMainApplication.java:380)
+Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testReceivingEmails(TestMainApplication.java:380)
+

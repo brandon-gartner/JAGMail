@@ -12,7 +12,7 @@
 
 <BorderPane fx:id="htmlPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="347.0" prefWidth="1038.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ca.brandongartner.jag.controllers.HTMLEditorFXMLController">
    <center>
-      <HTMLEditor fx:id="emailHTMLEditor" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" onKeyReleased="#displayEmailAsHTML" prefHeight="214.0" prefWidth="1044.0" BorderPane.alignment="CENTER" />
+      <HTMLEditor fx:id="emailHTMLEditor" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" prefHeight="214.0" prefWidth="1044.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
       <AnchorPane BorderPane.alignment="CENTER">

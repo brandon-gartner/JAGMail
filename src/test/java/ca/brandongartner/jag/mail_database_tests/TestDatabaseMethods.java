@@ -283,15 +283,16 @@ public class TestDatabaseMethods {
     public void testUpdateDraft() throws SQLException{
     LOG.warn(">>>>>>>>>> UPDATE DRAFT TEST >>>>>>>>>>>>>");
         int rowsAffected = instance.updateDraftEmail(basicEmail);
-        assertEquals(4, rowsAffected);
+        assertEquals(7, rowsAffected);
     }
     //7.2
-    @Test(expected = SQLException.class)
+    @Test
     public void testUpdateDraftThatIsntDraft() throws SQLException {
         
     LOG.warn(">>>>>>>>>> UPDATE FAKE DRAFT TEST >>>>>>>>>>>>>");
         basicEmail.setEmailId(2147483647);
         int rowsAffected = instance.updateDraftEmail(basicEmail);
+        assertEquals(0, rowsAffected);
     }
     
     

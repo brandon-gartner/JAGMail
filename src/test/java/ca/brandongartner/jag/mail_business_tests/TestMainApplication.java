@@ -73,7 +73,6 @@ public class TestMainApplication {
      * 1. sending empty email to 1 email address, essentially is testing if the to() method works
      * @throws MailException if an email address fails to be verified when attempting to send an email
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testSendEmptyMessage() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -85,7 +84,6 @@ public class TestMainApplication {
      * 2.  sending email with nothing but text message (and a person it's being sent to)
      * @throws MailException if the email it's being sent to is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testSendTextOnlyMessage() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -102,7 +100,6 @@ public class TestMainApplication {
      * 3. sending email with subject (and a person it's being sent to)
      * @throws MailException if one of the entered email addresses is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testSendTextSubjectHTMLEmail() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -114,7 +111,6 @@ public class TestMainApplication {
      * 4. sending email with HTML (and a person it's being sent to).  checks if the html message of the email object is the same as the one we chose to send
      * @throws MailException if the email address is invalid, or if sending the email fails
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testSendHTMLEmail() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -135,7 +131,6 @@ public class TestMainApplication {
      * 5. send email without recipient
      * @throws MailException if the email entered is invalid (it is)
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testSendWithoutRecipient() throws MailException{
         Email email = sending.sendEmail(to, cc, bcc, "", "this email has no recipient", "", attachments, embeddedAttachments);
@@ -145,7 +140,6 @@ public class TestMainApplication {
      * 6. send email with multiple recipients, check if the recipients we send to match those in the email object
      * @throws MailException if any of the entered emails are invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testSendMultipleRecipients() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -163,7 +157,6 @@ public class TestMainApplication {
      * 7. send email with one recipient, one cc, checks to see if our CC is the same as the one that is stored in the email object
      * @throws MailException if the email address of the CC person is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientOneCC() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -177,7 +170,6 @@ public class TestMainApplication {
      * 8. send email with one recipient, one bcc, checks if our stored bcc is the same as the one in the email object
      * @throws MailException if the email address of the bcc person is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientOneBCC() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -191,7 +183,6 @@ public class TestMainApplication {
      * 9. send email with one recipient, two cc, checks if both people stored for CC match those stored in the email object
      * @throws MailException if either of the CC email addresses are invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientTwoCC() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -213,7 +204,6 @@ public class TestMainApplication {
      * 10. send email with one recipient, two bcc, checks if our stored bccs match those in the new email object
      * @throws MailException if either of the bccs are invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientTwoBCC() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -235,7 +225,6 @@ public class TestMainApplication {
      * 11.  send email with one recipient, one attachment, checks if the attached attachment name is the same as that of the file we attached
      * @throws MailException if the recipient email address is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientOneAttachment() throws MailException{
         File attachment = new File("bliss.png");
@@ -255,7 +244,6 @@ public class TestMainApplication {
      * 12.  send email with one recipient, multiple attachments, checks if the attachment names are the same as those of the files we attached
      * @throws MailException if the recipient's email address was invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientMultipleAttachments() throws MailException{
         String[] fileNames = {"bliss.png", "blue.png"};
@@ -281,7 +269,6 @@ public class TestMainApplication {
      * 13. send email with one recipient, one embedded attachment, checks if the embedded attachment's name is the same as the one which we attached
      * @throws MailException if the recipient's email address is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientOneEmbeddedAttachment() throws MailException{
         File embeddedAttachment = new File("blue.png");
@@ -295,7 +282,6 @@ public class TestMainApplication {
      * 14. send email with one recipient, multiple embedded attachments, checks if the names of the embedded attachments are the same as the ones that we attached
      * @throws MailException if the recipient's email address is invalid
      */
-    @Ignore
     @Test(timeout = 10000)
     public void testOneRecipientMultipleEmbeddedAttachment() throws MailException{
         File embeddedAttachment1 = new File("blue.png");
@@ -316,7 +302,6 @@ public class TestMainApplication {
      * 15. broken mailconfigbean, incorrect email address, it should throw a mailexception
      * @throws MailException when it attempts to open the sending session with the incorrect email
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testBadMailConfigBadEmailOnSend() throws MailException{
         MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
@@ -332,7 +317,6 @@ public class TestMainApplication {
      * 16. broken mailconfigbean, incorrect password, it should throw a mailexception
      * @throws MailException when it attempts to open the sending session with the incorrect password
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testBadMailConfigWrongPassOnSend() throws MailException{
         MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
@@ -349,7 +333,6 @@ public class TestMainApplication {
      * 17. testing if someone entered null as an email address, should throw a nullexception in the email-verifying function
      * @throws MailException if the entered email address is invalid/null
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testNullEmailAddressSend() throws MailException{
         to.add(null);
@@ -360,7 +343,6 @@ public class TestMainApplication {
      * 18. attempts to send to an invalid email address.  email verifying function should throw a mailexception here
      * @throws MailException if it has an invalid email address
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 10000)
     public void testInvalidEmailAddressSend() throws MailException{
         to.add("this is not a real email address");
@@ -372,7 +354,6 @@ public class TestMainApplication {
      * just checks that the receivedemail array isn't null
      * @throws MailException if any of the entered email addresses are invalid
      */
-    @Ignore
     @Test(timeout = 30000)
     public void testRetrievingReturningArrayofReceivedEmails() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -391,7 +372,6 @@ public class TestMainApplication {
      * checks the size of the receivedemail array after sending 5 emails
      * @throws MailException if any of the entered email addresses are invalid
      */
-    @Ignore
     @Test(timeout = 60000)
     public void testReceivingEmails() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -425,7 +405,6 @@ public class TestMainApplication {
      * sends emails, retrieves them, then tries to retrieve again
      * @throws MailException if any of the entered email addresses are invalid
      */
-    @Ignore
     @Test(timeout = 30000)
     public void testDoubleReceive() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -450,7 +429,6 @@ public class TestMainApplication {
      * 22. check fields from received emails are the same, checking if theyre .equals to each other
      * @throws MailException if any of the email addresses entered were invalid
      */
-    @Ignore
     @Test(timeout = 30000)
     public void testEmailFieldsSame() throws MailException{
         to.add(receivingConfigBean.getUserEmailAddress());
@@ -482,7 +460,6 @@ public class TestMainApplication {
      * 23. attempts to receive emails using an invalid email address in the mailconfigbean
      * @throws MailException if any of the entered email addresses were invalid
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 30000)
     public void testBadMailConfigBadEmailOnReceive() throws MailException{
         MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();
@@ -504,7 +481,6 @@ public class TestMainApplication {
      * 24. attempts to receive emails using an invalid password in the mailconfigbean
      * @throws MailException if any of the entered email addresses were invalid
      */
-    @Ignore
     @Test(expected = MailException.class, timeout = 30000)
     public void testBadMailConfigWrongPassOnReceive() throws MailException{
         MailConfigFXMLBean brokenBean = new MailConfigFXMLBean();

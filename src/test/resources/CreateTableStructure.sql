@@ -27,7 +27,7 @@ CREATE TABLE addresses (
 CREATE TABLE attachments (
     attachmentId INT AUTO_INCREMENT,
     emailId INT,
-    file BLOB,
+    file MEDIUMBLOB,
     isEmbedded BOOLEAN,
     fileName TEXT,
 

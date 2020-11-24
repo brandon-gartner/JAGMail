@@ -46,6 +46,9 @@ public class TableFXMLController {
     private HTMLEditorFXMLController htmlController;
     
     @FXML
+    private TreeFXMLController treeController;
+    
+    @FXML
     private AnchorPane emailTablePane;
 
     @FXML // fx:id="emailTable"
@@ -103,7 +106,7 @@ public class TableFXMLController {
             @Override
             public void handle(ActionEvent event) {
                 EmailFXBean eBean = emailTable.getSelectionModel().getSelectedItem();
-                deleteAnEmail(eBean);
+                deleteAnEmail(Integer.parseInt(eBean.getEmailId()));
             }
         });
         
@@ -131,15 +134,6 @@ public class TableFXMLController {
     }
     
     /**
-     * the tableview, so other controllers can affect it
-     * @return 
-     */
-    public TableView<EmailFXBean> getTableView(){
-        LOG.trace("Getting the table view.");
-        return emailTable;
-    }
-    
-    /**
      * sets the table controller's reference to an htmlcontroller
      * @param htmlController the htmlController we want to store a reference to
      */
@@ -148,7 +142,24 @@ public class TableFXMLController {
     }
     
     /**
-     * gets emails to display on the table from the fake dao
+     * set's the table controller's reference to a tree controller
+     */
+    public void setTreeController(TreeFXMLController treeController){
+        this.treeController = treeController;
+    }
+    
+    /**
+     * the tableview, so other controllers can affect it
+     * @return 
+     */
+    public TableView<EmailFXBean> getTableView(){
+        LOG.trace("Getting the table view.");
+        return emailTable;
+    }
+
+    
+    /**
+     * gets emails to display on the table from the emailfxbean
      * @param emails an observable list of emailfxbeans which you display to the table
      */
     public void displayTable(ObservableList<EmailFXBean> emails){
@@ -214,12 +225,13 @@ public class TableFXMLController {
     /**
      * called when the user right-clicks and selects delete
      * deletes the given email from the database
-     * @param emailBean the emailBean of the email you wish to delete
+     * @param emailId the id of the email you want to delete
      */
-    private void deleteAnEmail(EmailFXBean emailBean) {
+    private void deleteAnEmail(int emailId) {
         LOG.trace("Attempting to delete an email via menu.");
         try {
-            DAO.deleteEmail(Integer.parseInt(emailBean.getEmailId()));
+            DAO.deleteEmail(emailId);
+            treeController.displayTree();
         }
         catch (SQLException e){
             

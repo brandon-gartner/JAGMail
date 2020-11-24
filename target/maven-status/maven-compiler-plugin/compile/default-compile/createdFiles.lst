@@ -3,6 +3,7 @@ ca\brandongartner\jag\controllers\TreeFXMLController$1.class
 ca\brandongartner\jag\beans\EmailFXBean.class
 ca\brandongartner\jag\beans\MailConfigFXMLBean.class
 ca\brandongartner\jag\gui_business\MainAppFX.class
+ca\brandongartner\jag\controllers\TableFXMLController$2.class
 ca\brandongartner\jag\mail_database\DatabaseDAO.class
 ca\brandongartner\jag\mail_business\SendReceiveEmail.class
 ca\brandongartner\jag\beans\FolderBean.class
@@ -11,8 +12,10 @@ ca\brandongartner\jag\beans\EmailBean.class
 ca\brandongartner\jag\beans\HTMLEditorFXBean.class
 ca\brandongartner\jag\gui_business\PropertyManagement.class
 ca\brandongartner\jag\controllers\TableFXMLController.class
+ca\brandongartner\jag\controllers\TableFXMLController$3.class
 ca\brandongartner\jag\gui_business\MainApp.class
 ca\brandongartner\jag\beans\AttachmentBean.class
 ca\brandongartner\jag\controllers\HTMLEditorFXMLController.class
+ca\brandongartner\jag\controllers\TableFXMLController$1.class
 ca\brandongartner\jag\beans\FormBean.class
 ca\brandongartner\jag\controllers\TreeFXMLController.class

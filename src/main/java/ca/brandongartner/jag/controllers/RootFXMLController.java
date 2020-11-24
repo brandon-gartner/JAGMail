@@ -1,4 +1,5 @@
 package ca.brandongartner.jag.controllers;
+import ca.brandongartner.jag.beans.AttachmentBean;
 import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import ca.brandongartner.jag.mail_database.DatabaseDAO;
 import javafx.event.ActionEvent;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -25,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -116,6 +119,9 @@ public class RootFXMLController {
         passSelfToHTML();
         LOG.trace("Passing root to HMTLController");
         
+        sendTreeToTable();
+        LOG.trace("Passing tree to the table.");
+        
         LOG.debug("is treeController null? " + ( treeController == null ));
         //try catch for sql exception later, here
         
@@ -152,6 +158,13 @@ public class RootFXMLController {
     }
     
     /**
+     * transfers the rootfxmlcontroller's treeController to the tableController
+     */
+    public void sendTreeToTable(){
+        tableController.setTreeController(treeController);
+    }
+    
+    /**
      * transfers the rootfxmlcontroller to the htmlController
      */
     public void passSelfToHTML(){
@@ -167,6 +180,7 @@ public class RootFXMLController {
         for (File f : currentFiles){
             fileCopy.add(f);
         }
+        LOG.trace("Made copied list of current files.");
         return fileCopy;
     }
     
@@ -264,7 +278,7 @@ public class RootFXMLController {
         dialog.setTitle(resources.getString("ioError"));
         dialog.setHeaderText(resources.getString("ioError"));
         dialog.setContentText(resources.getString(msg));
-        dialog.show();
+        dialog.showAndWait();
     }
     
     /**
@@ -304,12 +318,46 @@ public class RootFXMLController {
     }
     
     /**
-     * will save files from emails once we know how/there are files to save
+     * will save files from emails, asking which ones to download, and downloads them to the program's directory
+     * GUI stuff credit to: https://code.makery.ch/blog/javafx-dialogs-official/
      * @param event 
      */
     @FXML 
-    public void saveFile(ActionEvent event) throws FileNotFoundException, IOException {
-        //
+    public void saveFile(ActionEvent event) throws FileNotFoundException, IOException, SQLException {
+        String emailId = tableController.getTableView().getSelectionModel().getSelectedItem().getEmailId();
+        ArrayList<AttachmentBean> attachments = DAO.getRelatedAttachmentBeans(Integer.parseInt(emailId));
+        LOG.trace("Getting file names to a list");
+        ArrayList<String> fileNames = new ArrayList<String>();
+        for (AttachmentBean bean : attachments){
+            fileNames.add(bean.getFileName());
+        }
+        LOG.trace("Opening dialog box.");
+        ChoiceDialog<String> dialogBox = new ChoiceDialog<String>(resources.getString("SelectFile"),fileNames);
+        dialogBox.setTitle(resources.getString("FileSelection"));
+        dialogBox.setHeaderText(resources.getString("PleaseChoose"));
+        dialogBox.setContentText(resources.getString("ChooseFile"));
+        
+        Optional<String> result = dialogBox.showAndWait();
+        if (result.isPresent()){
+            LOG.trace("Searching for the correct file to save.");
+            for (AttachmentBean bean : attachments){
+                LOG.debug(bean.getFileName() + " AND " + result.get());
+                if (bean.getFileName().equals(result.get())){
+                    LOG.trace("Found correct file.");
+                    String path = result.get() + "/";
+                    LOG.debug("Path: " + path);
+                    try (FileOutputStream saveFile = new FileOutputStream(new File(path))) {
+                        saveFile.write(bean.getAttachment());
+                        LOG.debug("Saved the file.");
+                        
+                    }
+                    break;
+                }
+            }
+    }
+        
+        
+        
         //OutputStream saveFile = new FileOutputStream(new File(""));
         //byte[] fileBytes = file.getBytes();
         //saveFile.write(fileBytes);
