@@ -7,31 +7,33 @@ package ca.brandongartner.jag.mail_database;
 
 import ca.brandongartner.jag.beans.AttachmentBean;
 import ca.brandongartner.jag.beans.EmailBean;
-import ca.brandongartner.jag.beans.MailConfigBean;
-import java.io.File;
+import ca.brandongartner.jag.beans.EmailFXBean;
+import ca.brandongartner.jag.beans.FolderBean;
+import ca.brandongartner.jag.beans.MailConfigFXMLBean;
+import ca.brandongartner.jag.mail_business.SendReceiveEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import jodd.mail.EmailAddress;
 import javax.activation.DataSource;
+import jodd.mail.Email;
 import jodd.mail.EmailAttachment;
-
-//TODO: 
-//EMAILBEAN GENERATOR FROM FINDEMAIL RESULTSET
-//THINGS THAT NEED TO BE FIXED FOR RESUBMISSION TIME
-//METHOD TO CREATE EMAILBEAN FROM A FIND METHOD RESULTSET
-//TESTING
-//BUG FIXING
 
 /**
  * CRUD methods for a basic single-user email database
@@ -41,13 +43,9 @@ public class DatabaseDAO {
     
     private final static Logger LOG = LoggerFactory.getLogger(DatabaseDAO.class);
     
-    private final String url = "jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=CONVERT_TO_NULL";
-    private final String user = "root";
-    private final String password = "dawson";
+    public MailConfigFXMLBean instanceConfig;
     
-    private MailConfigBean instanceConfig;
-    
-    public DatabaseDAO(MailConfigBean configBean){
+    public DatabaseDAO(MailConfigFXMLBean configBean){
         this.instanceConfig = configBean;
     }
     
@@ -58,12 +56,16 @@ public class DatabaseDAO {
      */
     private Connection generateConnection() throws SQLException{
         try{
-            Connection connection = DriverManager.getConnection(instanceConfig.getMySqlURL(), instanceConfig.getMySqlUsername(), instanceConfig.getMySqlPassword());
+            LOG.trace("Attempting to generate a connection.");
+            String connectionString = instanceConfig.getMySqlURL() + ":" + instanceConfig.getMySqlPort() + "/" + instanceConfig.getDatabaseName() + "?zeroDateTimeBehavior=CONVERT_TO_NULL";
+            LOG.debug("Connection string: " + connectionString);
+            Connection connection = DriverManager.getConnection(connectionString, instanceConfig.getMySqlUserName(), instanceConfig.getMySqlPassword());
             LOG.trace("Connection created.");
             return connection;
         }
         catch (SQLException sqlex){
             LOG.warn("Connection failed.");
+            errorAlert("ConnectionFailed");
             throw new SQLException("Connection to database failed!");
         }
     }
@@ -96,40 +98,48 @@ public class DatabaseDAO {
      */
     public int insertEmail(EmailBean emailBean, String folderName) throws SQLException{
         //creates a connection, adds relevant email addresses and attachments to their respective tables (TODO: move addattachments to later, so it can contain emailid)
-        Connection connection = generateConnection();
-        int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
-        LOG.trace("Added all forms of recipients to the addresses table.");
-        counter += addAttachmentsToAttachmentTable(connection, emailBean);
-        LOG.trace("Added all attachments to the attachment table.");
+        try (Connection connection = generateConnection()){
+            int counter = addEmailRecipientsToAddressesTable(connection, emailBean);
+            LOG.trace("Added all forms of recipients to the addresses table.");
         
-        //create sql statement, prepare it, insert data into it
-        String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from)" + 
-                      " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, emailBean.getSubject());
-        ps.setString(2, emailBean.getMessage());
-        ps.setString(3, emailBean.getHtmlMessage());
-        ps.setTimestamp(4, emailBean.getSentDate());
-        ps.setTimestamp(5, getReceivedDate(folderName));
-        int folderId = getFolderIdFromName(connection, folderName);
-        ps.setInt(6, folderId);
-        int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
-        ps.setInt(7, fromId);
-        LOG.info("Finished setting parameters to insert an email.");
-        counter += ps.executeUpdate();
-        LOG.trace("Executed query.");
-        //getting the emailId and saving it to the bean
-        ResultSet rs = ps.getGeneratedKeys();
-        if (rs.next()){
-            int emailId = rs.getInt(1);
-            emailBean.setEmailId(emailId);
+            //create sql statement, prepare it, insert data into it
+            String sql = "INSERT INTO emails (subject, message, htmlMessage, sendDate, receiveDate, folderId, from_who)" + 
+                        " VALUES (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                                
+                                
+            ps.setString(1, emailBean.getSubject());
+            ps.setString(2, emailBean.getMessage());
+            ps.setString(3, emailBean.getHtmlMessage());
+            ps.setTimestamp(4, emailBean.getSentDate());
+            LOG.debug("Added subject, message, htmlmessage to the preparedStatement");
+            ps.setTimestamp(5, getReceivedDate(folderName));
+            int folderId = getFolderIdFromName(connection, folderName);
+            ps.setInt(6, folderId);
+            int fromId = getAddressIdFromEmailAddress(connection, emailBean.getFrom());
+            ps.setInt(7, fromId);
+            LOG.info("Finished setting parameters to insert an email.");
+            counter += ps.executeUpdate();
+            LOG.trace("Executed query.");
+            LOG.debug("Attempting to get the generated keys.");
+            ResultSet rs = ps.getGeneratedKeys();
+            LOG.debug("Got generated keys.");
+            if (rs.next()){
+                LOG.debug("Going through a result in email insertion.");
+                int emailId = rs.getInt(1);
+                emailBean.setEmailId(emailId);
+            }
+        
+            counter += addAttachmentsToAttachmentTable(connection, emailBean);
+            LOG.trace("Added all attachments to the attachment table.");
+        
+            //adding the addresses to the right places
+            addToEmailsToAddresses(connection, emailBean);
+            LOG.trace("Added emails to bridging table.");
+            LOG.trace("Finished adding email to database.");
+            return counter;
         }
         
-        //adding the addresses to the right places
-        addToEmailsToAddresses(connection, emailBean);
-        LOG.trace("Added emails to bridging table.");
-        LOG.trace("Finished adding email to database.");
-        return counter;
     }
     
     /**
@@ -140,7 +150,7 @@ public class DatabaseDAO {
     private Timestamp getReceivedDate(String folderName){
         switch (folderName){
             case "Sent":
-            case "Draft":
+            case "Drafts":
                 return null;
             default:
                 return Timestamp.valueOf(LocalDateTime.now());
@@ -161,7 +171,7 @@ public class DatabaseDAO {
         ResultSet rs = ps.executeQuery();
         LOG.trace("Executed query.");
         rs.next();
-        if (rs.getString("name") == folderName){
+        if (rs.getString("name").equalsIgnoreCase(folderName)){
             LOG.trace("Match found.");
             return true;
         }
@@ -179,18 +189,20 @@ public class DatabaseDAO {
      * @return 1, if the folder is successfully created
      * @throws SQLException if there is an error when setting the string, or generating the preparedStatement
      */
-    public int createFolder(Connection connection, String name) throws SQLException{
+    public int createFolder(String name) throws SQLException{
         if (name.length() > 50){
             LOG.error("New folder name too long.");
             throw new IllegalArgumentException("Name of the new folder was too long, should be 50 characters maximum.");
         }
-        String sql = "INSERT INTO folders (name) VALUES (?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, name);
-        LOG.info("Parameters set for folder-creation query.");
-        ps.executeUpdate();
-        LOG.trace("Query executed.");
-        return 1;
+        try(Connection connection = generateConnection()){
+            String sql = "INSERT INTO folders (name) VALUES (?)";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, name);
+            LOG.info("Parameters set for folder-creation query.");
+            ps.executeUpdate();
+            LOG.trace("Query executed.");
+            return 1;
+        }
     }
     
     /**
@@ -289,6 +301,12 @@ public class DatabaseDAO {
      */
     private HashSet<EmailAddress> getCombinedRecipientSet(EmailBean emailBean){
         HashSet<EmailAddress> recipients = new HashSet<EmailAddress>();
+        if (emailBean.getFrom() != null){
+            LOG.trace("Adding the from to the database.");
+            //create a new emailaddress, with the personalname empty, since the emailBean doesn't store that
+            recipients.add(new EmailAddress("", emailBean.getFrom()));
+        }
+        
         for (EmailAddress address : emailBean.getTos()){
             recipients.add(address);
             LOG.info("Added a 'to' address to the HashSet.");
@@ -316,15 +334,17 @@ public class DatabaseDAO {
      */
     private ArrayList<EmailAddress> findRecipientsMissingFromAddresses(Connection connection, HashSet<EmailAddress> recipients) throws SQLException{
         ArrayList<EmailAddress> recipientsNotInDB = new ArrayList<EmailAddress>(recipients);
-        String sql = "SELECT emailAddress FROM addresses WHERE emailAddress = ?";
+        String sql = "SELECT emailAddress FROM addresses";
         PreparedStatement ps = connection.prepareStatement(sql);
-        for (EmailAddress address : recipientsNotInDB){
-            ps.setString(1, address.getEmail());
+        Iterator<EmailAddress> emailIterator = recipientsNotInDB.iterator();
+        while (emailIterator.hasNext()){
+            EmailAddress address = emailIterator.next();
             LOG.info("Set parameters to find if a certain email address is inside of the database or not.");
             ResultSet result = ps.executeQuery();
             LOG.trace("Executed query.");
             if (checkIfEmailInsideOfResultSet(result, address.getEmail())){
-                recipientsNotInDB.remove(address);
+                LOG.debug("Began looping through the email list.");
+                emailIterator.remove();
                 LOG.info(address + " was found in database, thus removed from the HashSet.");
             }
             else {
@@ -344,18 +364,21 @@ public class DatabaseDAO {
      * @throws SQLException 
      */
     private boolean checkIfEmailInsideOfResultSet(ResultSet rs, String address) throws SQLException{
-        rs.next();
-        String receivedEmail = rs.getString("emailAddress");
-        if (receivedEmail != null && receivedEmail.equals(address)){
-            LOG.info("Email was found.");
-            return true;
+        LOG.debug("Applying rs.next() to begin checking inside of the resultSet");
+        while (rs.next()){
+            LOG.debug("Checking if an email was inside of the resultset.");
+            String receivedEmail = rs.getString("emailAddress");
+            if (receivedEmail != null && receivedEmail.equalsIgnoreCase(address)){
+                LOG.info("Email was found.");
+                return true;
+            }
+            else {
+                LOG.info("Email was not found, checking next email.");
+            }
         }
-        else {
-            LOG.info("Email was not found.");
-            return false;
-        }
+        return false;
     }
-    
+        
     /**
      * adds all of an email's tos,ccs,bccs to the addresses table
      * @param connection the connection this is all done through
@@ -373,7 +396,11 @@ public class DatabaseDAO {
         int addedCounter = 0;
         for (EmailAddress address : addressesNotInDB){
             ps.setString(1, address.getEmail());
-            ps.setString(2, address.getPersonalName());
+            if (address.getPersonalName() == null){
+                ps.setString(2, "");
+            } else {
+                ps.setString(2, address.getPersonalName());
+            }
             LOG.info("Set parameters.");
             addedCounter++;
             ps.executeUpdate();
@@ -392,20 +419,24 @@ public class DatabaseDAO {
      */
     private int addAttachmentsToAttachmentTable(Connection connection, EmailBean emailBean) throws SQLException{
         HashSet<AttachmentBean> attachmentSet = getAttachmentSet(emailBean);
-        String sql = "INSERT INTO attachments (file, isEmbedded) VALUES (?, ?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
+        String sql = "INSERT INTO attachments (file, isEmbedded, emailId, fileName) VALUES (?, ?, ?, ?)";
+        PreparedStatement ps = connection.prepareStatement(sql, 
+                                Statement.RETURN_GENERATED_KEYS);
         int counter = 0;
         for (AttachmentBean bean : attachmentSet){
             ps.setBytes(1, bean.getAttachment());
             ps.setBoolean(2, bean.getIsEmbedded());
+            ps.setInt(3, emailBean.getEmailId());
+            ps.setString(4, bean.getFileName());
             LOG.info("Finished setting parameters for adding attachments to their table.");
             ps.executeUpdate();
             LOG.info("Added attachment to table.");
             ResultSet resultSet = ps.getGeneratedKeys();
-            if (resultSet.next()){
+            /*if (resultSet.next()){
                 bean.setId(resultSet.getInt(1));
                 LOG.trace("Added attachmentId to the attachment bean.");
-            }
+            }*/
+            bean.setId(emailBean.getEmailId());
             counter += 1;
         }
         LOG.trace("Finished adding attachments to the attachment table.");
@@ -438,16 +469,18 @@ public class DatabaseDAO {
      * @return a resultset that can be processed into a set of emails
      * @throws SQLException 
      */
-    public ResultSet findStringInEmail(Connection connection, String messageToSearch) throws SQLException{
-        String sql = "SELECT * FROM emails WHERE message LIKE %?% OR htmlMessage LIKE %?% OR subject LIKE %?%";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, messageToSearch);
-        ps.setString(2, messageToSearch);
-        ps.setString(3, messageToSearch);
-        LOG.info("Finished setting parameters to search emails for a specified string.");
-        ResultSet rs = ps.executeQuery();
-        LOG.trace("Executed query.");
-        return rs;
+    public ResultSet findStringInEmail(String messageToSearch) throws SQLException{
+        String sql = "SELECT * FROM emails WHERE message LIKE ? OR htmlMessage LIKE ? OR subject LIKE ?";
+        try (Connection connection = generateConnection()){
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + messageToSearch + "%");
+            ps.setString(2, "%" + messageToSearch + "%");
+            ps.setString(3, "%" + messageToSearch + "%");
+            LOG.info("Finished setting parameters to search emails for a specified string.");
+            ResultSet rs = ps.executeQuery();
+            LOG.trace("Executed query.");
+            return rs;
+        }
     }
     
     /**
@@ -457,16 +490,21 @@ public class DatabaseDAO {
      * @return a resultset that can be processed into a set of emails
      * @throws SQLException 
      */
-    public ResultSet findEmailInFolder(Connection connection, String folderName) throws SQLException{
+    public ArrayList<EmailBean> findEmailInFolder(String folderName) throws SQLException{
         String sql = "SELECT * FROM emails " +
                       "INNER JOIN folders ON emails.folderId = folders.folderId " +
+                      "INNER JOIN addresses ON emails.from_who = addresses.addressId " +
                       "WHERE folders.name = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, folderName);
-        LOG.info("Finished setting parameters to search for all emails in a specified folder.");
-        ResultSet rs = ps.executeQuery();
-        LOG.trace("Executed query.");
-        return rs;
+        try (Connection connection = generateConnection()){
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, folderName);
+            LOG.info("Finished setting parameters to search for all emails in a specified folder.");
+            ResultSet rs = ps.executeQuery();
+            LOG.trace("Executed query.");
+            ArrayList<EmailBean> emailBeans = new ArrayList<EmailBean>();
+            emailBeans = generateReceivedEmailBeanListFromFolder(connection, rs, folderName);
+            return emailBeans;
+        }
     }
     
     /**
@@ -476,16 +514,19 @@ public class DatabaseDAO {
      * @return a resultSet that can be processed into a set of emails
      * @throws SQLException 
      */
-    public ResultSet findEmailsFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
+    public ResultSet findEmailsFromEmailAddress(String emailAddress) throws SQLException{
         String sql = "SELECT * FROM emails WHERE addresses.emailAddress = ?" + 
                       "INNER JOIN emailToAddresses ON emails.emailId = emailToAddresses.emailId " + 
                       "INNER JOIN addresses ON emailToAddresses.addressId = addresses.addressId";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, emailAddress);
-        LOG.info("Finished setting parameters to search for emails by their senders/receivers.");
-        ResultSet rs = ps.executeQuery();
-        LOG.info("Executed query.");
-        return rs;
+        try (Connection connection = generateConnection()){
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, emailAddress);
+            LOG.info("Finished setting parameters to search for emails by their senders/receivers.");
+            ResultSet rs = ps.executeQuery();
+            LOG.info("Executed query.");
+            return rs;
+        }
+        
     }
     
     //UPDATE/PRIVATE METHODS TO UPDATE
@@ -499,27 +540,32 @@ public class DatabaseDAO {
      * @throws SQLException 
      */
     //UPDATE EMAIL FOLDER (NOT FROM SENT/DRAFTS, NOT INTO SENT/DRAFTS
-    public int updateEmailFolder(Connection connection, int emailId, String folderName) throws SQLException{
-        if (checkIfFolderExists(connection, folderName)){
-            String sql = "UPDATE emails SET folderId = ? WHERE emailId = ?";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            int folderId = getFolderIdFromName(connection, folderName);
-            ps.setInt(1, folderId);
-            ps.setInt(2, emailId);
-            LOG.info("Finished setting parameters to move an email to a new folder.");
-            int rowsModified = ps.executeUpdate();
-            LOG.trace("Executed query.");
-            return rowsModified;
+    public int updateEmailFolder(int emailId, String folderName) throws SQLException{
+        try (Connection connection = generateConnection()){
+            if (checkIfFolderExists(connection, folderName)){
+                LOG.debug("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>" + checkIfFolderExists(connection, folderName));
+                String sql = "UPDATE emails SET folderId = ? WHERE emailId = ?";
+                PreparedStatement ps = connection.prepareStatement(sql);
+                int folderId = getFolderIdFromName(connection, folderName);
+                ps.setInt(1, folderId);
+                ps.setInt(2, emailId);
+                LOG.info("Finished setting parameters to move an email to a new folder.");
+                int rowsModified = ps.executeUpdate();
+                LOG.trace("Executed query.");
+                return rowsModified;
+            }
+            else {
+                LOG.error("Folder does not exist.");
+                throw new SQLException("Cannot add to a nonexistent folder.");
+            }
         }
-        else {
-            LOG.error("Folder does not exist.");
-            throw new SQLException("Cannot add to a nonexistent folder.");
-        }
+        
     }
     
     //UPDATE EMAILS (IF IN DRAFTS)
     /**
      * takes an emailBean, and replaces the old version of it in the database with what's in the emailBean now.  we assume they are in drafts, since we'll be able to verify that more easily once we're doing GUI
+     * if nothing is deleted, nothing will be added, either
      * @param emailBean the emailBean of the email you'd like to update
      * @return the amount of rows modified
      * @throws SQLException 
@@ -528,9 +574,14 @@ public class DatabaseDAO {
         LOG.trace("Began updating draft email.");
         int counter = deleteEmail(emailBean.getEmailId());
         LOG.trace("Deleted email.");
-        counter += insertEmail(emailBean, "Draft");
-        LOG.trace("Inserted updated email.");
-        return counter;
+        if (counter > 0){
+            counter += insertEmail(emailBean, "Drafts");
+            LOG.trace("Inserted updated email.");
+            return counter;
+        } else {
+            LOG.warn("That was not a real draft email");
+            return counter;
+        }
     }
     
     /**
@@ -588,7 +639,7 @@ public class DatabaseDAO {
      * @throws SQLException if it fails to set the int, prepaer the statement, or execute the update
      */
     private int deleteRelatedAttachments(Connection connection, int emailId) throws SQLException{
-        String sql = "DELETE FROM attachments WHERE emaildId = ?";
+        String sql = "DELETE FROM attachments WHERE emailId = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setInt(1,emailId);
         LOG.info("Finished setting parameters to delete all email to addresses entries with specified emailId");
@@ -622,14 +673,15 @@ public class DatabaseDAO {
      */
     public int deleteEmail(int emailId) throws SQLException {
         LOG.info("Beginning email deletion");
-        Connection connection = generateConnection();
-        int counter = deleteRelatedAttachments(connection, emailId);
-        LOG.trace("Deleted attachments.");
-        counter += deleteRelatedEmailToAddresses(connection, emailId);
-        LOG.trace("Deleted emailToAddress entries.");
-        counter += deleteEmailsFromTable(connection, emailId);
-        LOG.trace(("Deleted email."));
-        return counter;
+        try (Connection connection = generateConnection()){
+            int counter = deleteRelatedAttachments(connection, emailId);
+            LOG.trace("Deleted attachments.");
+            counter += deleteRelatedEmailToAddresses(connection, emailId);
+            LOG.trace("Deleted emailToAddress entries.");
+            counter += deleteEmailsFromTable(connection, emailId);
+            LOG.trace(("Deleted email."));
+            return counter;
+        }
     }
     
     
@@ -642,7 +694,8 @@ public class DatabaseDAO {
      * @throws SQLException 
      */
     private int getAddressIdFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
-        String sql = "SELECT * FROM addresses WHERE emailAddress = ?";
+        LOG.debug("Beginning to find the addressId based on the email address");
+        String sql = "SELECT addressId FROM addresses WHERE emailAddress = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, emailAddress);
         LOG.info("Finished setting parameters to get the addressId of an email address");
@@ -694,6 +747,209 @@ public class DatabaseDAO {
         LOG.trace("Executed query.");
         rs.next();
         int folderId = rs.getInt("folderId");
+        LOG.trace("Found folderId");
         return folderId;
+    }
+    
+    /**
+     * creates an arraylist of emailbeans from the resultset of emails that was received
+     * @param conn the connection to work using
+     * @param rs the resultset to constrict the emailBeans from
+     * @param folderName the folder that these emails were stored inside of
+     * @return an arraylist of emailbeans stored in the resultset
+     * @throws SQLException 
+     */
+    private ArrayList<EmailBean> generateReceivedEmailBeanListFromFolder(Connection conn, ResultSet rs, String folderName) throws SQLException {
+        int folderId = getFolderIdFromName(conn, folderName);
+        LOG.trace("Got the folderId of the folder.");
+        ArrayList<EmailBean> emailBeans = new ArrayList<EmailBean>();
+        while (rs.next()){
+            EmailBean newBean = new EmailBean();
+            newBean.setEmailId(rs.getInt("emailId"));
+            newBean.setFolderId(folderId);
+            Email email = generateReceivedEmail(rs.getString("emailAddress"), rs.getString("subject"), rs.getString("message"), rs.getString("htmlMessage"), rs.getDate("sendDate"), rs.getDate("receiveDate"));
+            newBean.setEmail(email);
+            emailBeans.add(newBean);
+            
+        }
+        LOG.trace("Finished creating the arraylist of email beans.");
+        return emailBeans;
+    }
+    
+    /**
+     * takes multiple properties, and constructs it into a basic email, to be saved into the database as a received email.
+     * @param from who the email is from
+     * @param subject the email's subject
+     * @param textMessage the text message of the email
+     * @param htmlMessage the html message of the email (will overwrite text message, if not empty)
+     * @param sentDate the date the email was sent
+     * @param receivedDate the date the email was received
+     * @return the constructed email from these properties
+     */
+    private Email generateReceivedEmail(String from, String subject, String textMessage, String htmlMessage, Date sentDate, Date receivedDate){
+        Email email = new Email();
+        email.from(from);
+        email.subject(subject);
+        email.textMessage(textMessage);
+        if (!htmlMessage.equalsIgnoreCase("")){
+            email.htmlMessage(htmlMessage);
+        }
+        email.sentDate(sentDate);
+        LOG.trace("Finished copying properties over.");
+        return email;
+    }
+    
+    /**
+     * gets the names of all folders that exist on the database
+     * @return an arraylist of all foldernames
+     * @throws SQLException 
+     */
+    public ArrayList<String> getAllFolderNames() throws SQLException{
+        LOG.trace("Attempting to get the names of all folders in the database.");
+        String sql = "SELECT * FROM folders";
+        ArrayList<String> folderNames = new ArrayList<String>();
+        try (Connection conn = generateConnection()){
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()){
+                folderNames.add(rs.getString("name"));
+            }
+        }
+        
+        LOG.trace("Finished building arraylist of all folder names.");
+        return folderNames;
+    }
+    
+    /**
+     * gets all emails, inside of all folders, saves them all into the appropriate format for a folderbean,
+     * and then returns an observable list of those folderbeans
+     * @return the folderbeans we've produced inside of this method.
+     * @throws SQLException 
+     */
+    public ObservableList<FolderBean> getAllFolders() throws SQLException {
+        LOG.debug("Beginning to look for all folders.");
+        ArrayList<String> folderNames = getAllFolderNames();
+        LOG.debug("Found all folder names.");
+        ObservableList<FolderBean> folderBeans = FXCollections.observableArrayList();
+        for (String folder : folderNames){
+            LOG.debug("Attempting to create a folder bean based on the name of the folder: " + folder);
+            FolderBean folderBean = new FolderBean();
+            ArrayList<EmailBean> emailBeans = findEmailInFolder(folder);
+            for (EmailBean eBean : emailBeans){
+                EmailFXBean newFxBean = convertEmailBean(eBean);
+                folderBean.addEmail(newFxBean);
+            }
+            folderBean.setFolderName(folder);
+            LOG.debug("Finished constructing the folder bean.");
+            folderBeans.add(folderBean);
+            LOG.debug("Added the folder bean to the list.");
+        }
+        LOG.debug("Finished constructing the folder bean observablelist.");
+        return folderBeans;
+    }
+    
+    /**
+     * converts an emailBean into an EmailFXBean
+     * @param bean the emailBean we wish to convert to an emailFXBean
+     * @return the appropriate emailfxbean
+     */
+    public EmailFXBean convertEmailBean(EmailBean bean){
+        EmailFXBean newFxBean = new EmailFXBean();
+        Email email = bean.getEmail();
+        newFxBean.setEmailId((Integer.toString(bean.getEmailId())));
+        newFxBean.setFromField(email.from().getEmail());
+        newFxBean.setSubjectField(email.subject());
+        String message;
+        //sets a message to be empty if it happens to be null
+        if (email.messages().get(1).getContent() == null){
+            message = "";
+        }
+        else {
+            message = email.messages().get(1).getContent();
+        }
+        newFxBean.setHtmlField(message);
+        String date;
+        //adds the current time if the sent date was null
+        if (email.sentDate() == null){
+            date = LocalDateTime.now().toString();
+        }else {
+            date = email.sentDate().toString();
+        }
+        LOG.trace("Finished copying fields over.");
+        newFxBean.setDate(date);
+        return newFxBean;
+    }
+    
+    /**
+     * deletes a folder that has a certain name, and deletes all emails inside
+     * @param folderName the folder which we wish to delete
+     * @return the amount of rows affected
+     * @throws SQLException 
+     */
+    public int deleteFolder(String folderName) throws SQLException {
+        try (Connection conn = generateConnection()){
+            int folderId = getFolderIdFromName(conn, folderName);
+            String sql = "SELECT * FROM emails WHERE folderId = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, folderId);
+            LOG.trace("Set parameters to get all emails within a folder.");
+            ResultSet rs = ps.executeQuery();
+            ArrayList<Integer> emailIds = new ArrayList<Integer>();
+            while (rs.next()){
+                emailIds.add(rs.getInt("emailId"));
+            }
+            int counter = 0;
+            for (Integer num : emailIds){
+                counter += deleteEmail(num);
+            }
+            LOG.trace("Finished deleting all emails within the folder.");
+        
+            sql = "DELETE FROM folders WHERE name = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, folderName);
+            counter += ps.executeUpdate();
+            LOG.trace("Deleted the folder.");
+        
+            return counter;
+        }
+    }
+    
+    /**
+     * returns an arraylist of attachment beans that are the attachments related to the emailid
+     * @param emailId the emailid whose attachments you want
+     * @return the arraylist of attachment beans
+     * @throws SQLException 
+     */
+    public ArrayList<AttachmentBean> getRelatedAttachmentBeans(int emailId) throws SQLException {
+        try (Connection conn = generateConnection()){
+            String sql = "SELECT * FROM attachments WHERE emailId = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, emailId);
+            LOG.trace("Set parameters to get all attachments of an emailId.");
+            ResultSet rs = ps.executeQuery();
+            ArrayList<AttachmentBean> beanList = new ArrayList<AttachmentBean>();
+            while (rs.next()){
+                AttachmentBean newBean = new AttachmentBean();
+                newBean.setIsEmbedded(rs.getBoolean("isEmbedded"));
+                newBean.setAttachment(rs.getBytes("file"));
+                newBean.setFileName(rs.getString("fileName"));
+                beanList.add(newBean);
+            }
+            LOG.trace("Created the arrayList of attachment beans.");
+            return beanList;
+        }
+    }
+    
+    /**
+     * creates an alert error on the screen, getting the text from the resource bundle
+     * @param msg message we search the messagebundle for
+     * @author Ken Fogel
+     */
+    private void errorAlert(String msg) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        dialog.setTitle(ResourceBundle.getBundle("MessagesBundle").getString("SQLError"));
+        dialog.setHeaderText(ResourceBundle.getBundle("MessagesBundle").getString("SQLError"));
+        dialog.setContentText(ResourceBundle.getBundle("MessagesBundle").getString(msg));
+        dialog.showAndWait();
     }
 }

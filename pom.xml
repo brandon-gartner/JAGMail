@@ -47,7 +47,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- class that has the main method -->
-        <mainClass>${groupId}.${artifactId}.TestMainApplication</mainClass>
+        <mainClass>ca.brandongartner.jag.gui_business.MainApp</mainClass>
         <skipTests>false</skipTests>
     </properties>
 
@@ -80,8 +80,46 @@
             <groupId>javax.activation</groupId>
             <artifactId>javax.activation-api</artifactId>
             <version>1.2.0</version>
+        </dependency> 
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>16-ea+1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>16-ea+1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>16-ea+1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>16-ea+1</version>
+        </dependency>
+        <!-- None of the samples combine Swing with JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>16-ea+1</version>
+        </dependency>
+        <!-- Here are the 3 versions of the graphics libraries for Win, Mac & Linux -->
+        <!-- Comment and uncomment depending on your OS, default is Windows -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics </artifactId>
+            <version>16-ea+1</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.21</version>
+        </dependency>
     </dependencies>
     <build>
         <!-- Goals may be set in the IDE or the pom IDE or CLI goals override 

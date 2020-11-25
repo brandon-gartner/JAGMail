@@ -5,6 +5,7 @@
  */
 package ca.brandongartner.jag.beans;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import jodd.mail.Email;
 import jodd.mail.EmailAddress;
 import jodd.mail.EmailAttachment;
 import jodd.mail.EmailMessage;
+import jodd.mail.ReceivedEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +34,18 @@ public class EmailBean {
         return this.containedEmail;
     }
     
+    public EmailBean(){
+        
+    }
+    
     public int getFolderId(){
         return this.folderId;
     }
     
     public java.sql.Timestamp getSentDate(){
+        if (containedEmail.sentDate() == null){
+            return new java.sql.Timestamp(System.currentTimeMillis());
+        }
         return new java.sql.Timestamp(containedEmail.sentDate().getTime());
     }
     
@@ -79,7 +88,7 @@ public class EmailBean {
     }
     
     public String getHtmlMessage(){
-        throw new IllegalArgumentException("Not yet implemented");
+        return containedEmail.messages().get(1).getContent();
     }
     
     public List<EmailAttachment<? extends DataSource>> getAttachments(){
@@ -97,6 +106,20 @@ public class EmailBean {
     
     public void setEmailId(int newId){
         this.emailId = newId;
+    }
+    
+    //converts received email to an emailbean
+    public EmailBean(ReceivedEmail received){
+        Email email = new Email();
+        email.sentDate(received.receivedDate());
+        email.from(received.from().toString());
+        email.subject(received.subject());
+        email.textMessage(received.messages().get(0).getContent());
+        email.htmlMessage(received.messages().get(1).getContent());
+        for (EmailAttachment<? extends DataSource> attachment : received.attachments()){
+            email.attachment(attachment);
+        }
+        this.setEmail(email);
     }
     
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="treePane" onDragEntered="#draggedOnto" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ca.brandongartner.jag.controllers.TreeFXMLController">
+   <children>
+      <TreeView fx:id="treeComponent" onDragDropped="#dragDropped" onDragOver="#draggedOnto" prefHeight="665.0" prefWidth="232.0" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Button layoutX="14.0" layoutY="667.0" mnemonicParsing="false" onMouseClicked="#createNewFolder" text="%CreateFolder" />
+      <Button fx:id="deleteFolderButton" layoutX="124.0" layoutY="667.0" mnemonicParsing="false" onMouseClicked="#deleteSelectedFolder" text="%DeleteFolder" />
+   </children>
+</AnchorPane>
