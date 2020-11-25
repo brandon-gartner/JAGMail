@@ -9,7 +9,6 @@ import ca.brandongartner.jag.beans.MailConfigFXMLBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.io.File;
@@ -427,6 +426,7 @@ public class TestMainApplication {
     
     /**
      * 22. check fields from received emails are the same, checking if theyre .equals to each other
+     * seems to be failing because it's reading the wrong email, but nothing i can do about it at this point
      * @throws MailException if any of the email addresses entered were invalid
      */
     @Test(timeout = 30000)
