@@ -305,6 +305,12 @@ public class DatabaseDAO {
      */
     private HashSet<EmailAddress> getCombinedRecipientSet(EmailBean emailBean){
         HashSet<EmailAddress> recipients = new HashSet<EmailAddress>();
+        if (emailBean.getFrom() != null){
+            LOG.trace("Adding the from to the database.");
+            //create a new emailaddress, with the personalname empty, since the emailBean doesn't store that
+            recipients.add(new EmailAddress("", emailBean.getFrom()));
+        }
+        
         for (EmailAddress address : emailBean.getTos()){
             recipients.add(address);
             LOG.info("Added a 'to' address to the HashSet.");
@@ -333,9 +339,7 @@ public class DatabaseDAO {
     private ArrayList<EmailAddress> findRecipientsMissingFromAddresses(Connection connection, HashSet<EmailAddress> recipients) throws SQLException{
         ArrayList<EmailAddress> recipientsNotInDB = new ArrayList<EmailAddress>(recipients);
         String sql = "SELECT emailAddress FROM addresses";
-        PreparedStatement ps = connection.prepareStatement(sql, 
-                                ResultSet.TYPE_SCROLL_INSENSITIVE, 
-                                ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement ps = connection.prepareStatement(sql);
         Iterator<EmailAddress> emailIterator = recipientsNotInDB.iterator();
         while (emailIterator.hasNext()){
             EmailAddress address = emailIterator.next();
@@ -398,7 +402,11 @@ public class DatabaseDAO {
         int addedCounter = 0;
         for (EmailAddress address : addressesNotInDB){
             ps.setString(1, address.getEmail());
-            ps.setString(2, address.getPersonalName());
+            if (address.getPersonalName() == null){
+                ps.setString(2, "");
+            } else {
+                ps.setString(2, address.getPersonalName());
+            }
             LOG.info("Set parameters.");
             addedCounter++;
             ps.executeUpdate();
