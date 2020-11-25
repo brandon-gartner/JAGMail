@@ -168,7 +168,7 @@ public class DatabaseDAO {
         ResultSet rs = ps.executeQuery();
         LOG.trace("Executed query.");
         rs.next();
-        if (rs.getString("name").equals(folderName)){
+        if (rs.getString("name").equalsIgnoreCase(folderName)){
             LOG.trace("Match found.");
             return true;
         }
@@ -332,14 +332,13 @@ public class DatabaseDAO {
      */
     private ArrayList<EmailAddress> findRecipientsMissingFromAddresses(Connection connection, HashSet<EmailAddress> recipients) throws SQLException{
         ArrayList<EmailAddress> recipientsNotInDB = new ArrayList<EmailAddress>(recipients);
-        String sql = "SELECT emailAddress FROM addresses WHERE emailAddress = ?";
+        String sql = "SELECT emailAddress FROM addresses";
         PreparedStatement ps = connection.prepareStatement(sql, 
                                 ResultSet.TYPE_SCROLL_INSENSITIVE, 
                                 ResultSet.CONCUR_READ_ONLY);
         Iterator<EmailAddress> emailIterator = recipientsNotInDB.iterator();
         while (emailIterator.hasNext()){
             EmailAddress address = emailIterator.next();
-            ps.setString(1, address.getEmail());
             LOG.info("Set parameters to find if a certain email address is inside of the database or not.");
             ResultSet result = ps.executeQuery();
             LOG.trace("Executed query.");
@@ -366,19 +365,20 @@ public class DatabaseDAO {
      */
     private boolean checkIfEmailInsideOfResultSet(ResultSet rs, String address) throws SQLException{
         LOG.debug("Applying rs.next() to begin checking inside of the resultSet");
-        rs.next();
-        LOG.debug("Checking if an email was inside of the resultset.");
-        String receivedEmail = rs.getString("emailAddress");
-        if (receivedEmail != null && receivedEmail.equals(address)){
-            LOG.info("Email was found.");
-            return true;
+        while (rs.next()){
+            LOG.debug("Checking if an email was inside of the resultset.");
+            String receivedEmail = rs.getString("emailAddress");
+            if (receivedEmail != null && receivedEmail.equalsIgnoreCase(address)){
+                LOG.info("Email was found.");
+                return true;
+            }
+            else {
+                LOG.info("Email was not found, checking next email.");
+            }
         }
-        else {
-            LOG.info("Email was not found.");
-            return false;
-        }
+        return false;
     }
-    
+        
     /**
      * adds all of an email's tos,ccs,bccs to the addresses table
      * @param connection the connection this is all done through
@@ -702,10 +702,8 @@ public class DatabaseDAO {
      */
     private int getAddressIdFromEmailAddress(Connection connection, String emailAddress) throws SQLException{
         LOG.debug("Beginning to find the addressId based on the email address");
-        String sql = "SELECT * FROM addresses WHERE emailAddress = ?";
-        PreparedStatement ps = connection.prepareStatement(sql, 
-                                ResultSet.TYPE_SCROLL_INSENSITIVE, 
-                                ResultSet.CONCUR_READ_ONLY);
+        String sql = "SELECT addressId FROM addresses WHERE emailAddress = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, emailAddress);
         LOG.info("Finished setting parameters to get the addressId of an email address");
         ResultSet rs = ps.executeQuery();
@@ -800,7 +798,7 @@ public class DatabaseDAO {
         email.from(from);
         email.subject(subject);
         email.textMessage(textMessage);
-        if (!htmlMessage.equals("")){
+        if (!htmlMessage.equalsIgnoreCase("")){
             email.htmlMessage(htmlMessage);
         }
         email.sentDate(sentDate);

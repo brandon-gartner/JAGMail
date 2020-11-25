@@ -112,8 +112,8 @@ public class EmailBean {
         email.sentDate(received.receivedDate());
         email.from(received.from().toString());
         email.subject(received.subject());
-        email.textMessage(received.messages().get(0).toString());
-        email.htmlMessage(received.messages().get(1).toString());
+        email.textMessage(received.messages().get(0).getContent());
+        email.htmlMessage(received.messages().get(1).getContent());
         this.setEmail(email);
     }
     

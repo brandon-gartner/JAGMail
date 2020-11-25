@@ -20,7 +20,6 @@ import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.HTMLEditor;
@@ -152,6 +151,7 @@ public class HTMLEditorFXMLController {
             LOG.trace("Sent the email.");
             //save email into database in sent
             DAO.insertEmail(sentEmailBean, "Sent");
+            clearFields();
         
             try{
                 LOG.trace("Pausing to wait for new email, in case we sent to ourselves.");
@@ -350,6 +350,7 @@ public class HTMLEditorFXMLController {
      */
     public void replyEmail(EmailFXBean emailBean){
         modifyFields(emailBean);
+        
     }
     
     /**

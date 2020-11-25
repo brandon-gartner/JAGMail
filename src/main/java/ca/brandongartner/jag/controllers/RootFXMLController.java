@@ -275,8 +275,8 @@ public class RootFXMLController {
      */
     private void errorAlert(String msg) {
         Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.setTitle(resources.getString("ioError"));
-        dialog.setHeaderText(resources.getString("ioError"));
+        dialog.setTitle(resources.getString("Error"));
+        dialog.setHeaderText(resources.getString("Error"));
         dialog.setContentText(resources.getString(msg));
         dialog.showAndWait();
     }
@@ -324,8 +324,22 @@ public class RootFXMLController {
      */
     @FXML 
     public void saveFile(ActionEvent event) throws FileNotFoundException, IOException, SQLException {
-        String emailId = tableController.getTableView().getSelectionModel().getSelectedItem().getEmailId();
-        ArrayList<AttachmentBean> attachments = DAO.getRelatedAttachmentBeans(Integer.parseInt(emailId));
+        String emailId = "";
+        try {
+            emailId = tableController.getTableView().getSelectionModel().getSelectedItem().getEmailId();
+        } catch (NullPointerException e){
+            errorAlert("SelectAnEmail");
+            return;
+        }
+         
+        ArrayList<AttachmentBean> attachments = new ArrayList<AttachmentBean>();
+        try{
+            attachments = DAO.getRelatedAttachmentBeans(Integer.parseInt(emailId));
+        } catch (SQLException e){
+            errorAlert("SQLError");
+            return;
+        }
+        
         LOG.trace("Getting file names to a list");
         ArrayList<String> fileNames = new ArrayList<String>();
         for (AttachmentBean bean : attachments){
@@ -354,14 +368,7 @@ public class RootFXMLController {
                     break;
                 }
             }
-    }
-        
-        
-        
-        //OutputStream saveFile = new FileOutputStream(new File(""));
-        //byte[] fileBytes = file.getBytes();
-        //saveFile.write(fileBytes);
-        //saveFile.close();
+        }
     }
     
     /**

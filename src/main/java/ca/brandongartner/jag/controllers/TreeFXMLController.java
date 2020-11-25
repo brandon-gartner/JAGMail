@@ -252,7 +252,8 @@ public class TreeFXMLController {
                 DAO.createFolder(newFolderName);
                 displayTree();
             } else {
-                throw new IllegalArgumentException("The entered folder name matches that of a folder that already exists.");
+                errorAlert("FolderNameExists");
+                return;
             }
         }
     }
@@ -290,6 +291,7 @@ public class TreeFXMLController {
             case "Inbox":
             case "Drafts":
             case "Sent":
+            case "Folders":
                 deleteFolderButton.setDisable(true);
                 LOG.trace("Core folder selected, delete button disabled.");
                 return;

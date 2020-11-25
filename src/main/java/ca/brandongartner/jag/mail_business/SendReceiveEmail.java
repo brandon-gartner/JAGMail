@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
+import javafx.scene.control.Alert;
 import javax.activation.DataSource;
 
 import org.slf4j.Logger;
@@ -46,7 +48,7 @@ public class SendReceiveEmail {
     private final static Logger LOG = LoggerFactory.getLogger(SendReceiveEmail.class);
 
     private final MailConfigFXMLBean UserBean;
-
+    
     private final int secondsToSleep = 3;
 
     public SendReceiveEmail(MailConfigFXMLBean bean){
@@ -68,10 +70,14 @@ public class SendReceiveEmail {
      */
     public Email sendEmail(ArrayList<String> emailToList, ArrayList<String> emailCCList, ArrayList<String> emailBCCList, String subject, String textMessage, String HTMLMessage, ArrayList<File> attachments, ArrayList<File> embeddedAttachments) throws MailException{
         //verifies the email address of the MailConfigBean, as well as all that we were supposed to send to as a normal email, cc, or bcc
-        checkEmail(UserBean.getUserEmailAddress());
-        validateEmailList(emailToList);
-        validateEmailList(emailCCList);
-        validateEmailList(emailBCCList);
+        try {
+            checkEmail(UserBean.getUserEmailAddress());
+            validateEmailList(emailToList);
+            validateEmailList(emailCCList);
+            validateEmailList(emailBCCList);
+        } catch (MailException e){
+            errorAlert("InvalidEmail");
+        }
         
         //generate an smtp server
         SmtpServer smtpServer = generateSmtpServer();
@@ -360,4 +366,19 @@ public class SendReceiveEmail {
             });
         }
     }
+    
+     /**
+     * Error message popup dialog
+     *
+     * @param the message we want to appear in the box
+     */
+    private void errorAlert(String msg) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        LOG.trace("Creating alert dialog.");
+        dialog.setTitle(ResourceBundle.getBundle("MessagesBundle").getString("Error"));
+        dialog.setHeaderText(ResourceBundle.getBundle("MessagesBundle").getString("Error"));
+        dialog.setContentText(ResourceBundle.getBundle("MessagesBundle").getString(msg));
+        dialog.show();
+    }
+    
 }
