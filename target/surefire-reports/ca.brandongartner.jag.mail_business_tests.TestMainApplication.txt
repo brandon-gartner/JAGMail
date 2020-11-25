@@ -1,38 +1,18 @@
 -------------------------------------------------------------------------------
 Test set: ca.brandongartner.jag.mail_business_tests.TestMainApplication
 -------------------------------------------------------------------------------
-Tests run: 24, Failures: 0, Errors: 6, Skipped: 0, Time elapsed: 130.815 s <<< FAILURE! - in ca.brandongartner.jag.mail_business_tests.TestMainApplication
-testEmailFieldsSame  Time elapsed: 8.214 s  <<< ERROR!
-jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:442)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:442)
+Tests run: 24, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 162.315 s <<< FAILURE! - in ca.brandongartner.jag.mail_business_tests.TestMainApplication
+testEmailFieldsSame  Time elapsed: 13.088 s  <<< FAILURE!
+java.lang.AssertionError
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:456)
 
-testRetrievingReturningArrayofReceivedEmails  Time elapsed: 8.078 s  <<< ERROR!
-jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testRetrievingReturningArrayofReceivedEmails(TestMainApplication.java:366)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testRetrievingReturningArrayofReceivedEmails(TestMainApplication.java:366)
-
-testDoubleReceive  Time elapsed: 8.449 s  <<< ERROR!
-jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testDoubleReceive(TestMainApplication.java:417)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testDoubleReceive(TestMainApplication.java:417)
-
-testNullEmailAddressSend  Time elapsed: 3.339 s  <<< ERROR!
+testNullEmailAddressSend  Time elapsed: 3.309 s  <<< ERROR!
 java.lang.Exception: Unexpected exception, expected<jodd.mail.MailException> but was<java.lang.ExceptionInInitializerError>
 	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testNullEmailAddressSend(TestMainApplication.java:339)
 Caused by: java.lang.IllegalStateException: Toolkit not initialized
 	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testNullEmailAddressSend(TestMainApplication.java:339)
 
-testReceivingEmails  Time elapsed: 3.518 s  <<< ERROR!
-jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testReceivingEmails(TestMainApplication.java:380)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testReceivingEmails(TestMainApplication.java:380)
-
-testInvalidEmailAddressSend  Time elapsed: 3.016 s  <<< ERROR!
+testInvalidEmailAddressSend  Time elapsed: 3.008 s  <<< ERROR!
 java.lang.Exception: Unexpected exception, expected<jodd.mail.MailException> but was<java.lang.NoClassDefFoundError>
 	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testInvalidEmailAddressSend(TestMainApplication.java:349)
 

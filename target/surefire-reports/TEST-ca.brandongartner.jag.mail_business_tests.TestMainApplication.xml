@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="130.815" tests="24" errors="6" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="162.315" tests="24" errors="2" skipped="0" failures="1">
   <properties>
     <property name="java.specification.version" value="14"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="user.country" value="CA"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="C:\Program Files\AdoptOpenJDK\jdk-14.0.2.12-hotspot\bin"/>
-    <property name="sun.java.command" value="C:\Users\valco\AppData\Local\Temp\surefire10472005622535008277\surefirebooter8202536356705845392.jar C:\Users\valco\AppData\Local\Temp\surefire10472005622535008277 2020-11-24T21-00-13_727-jvmRun1 surefire11725519275017987682tmp surefire_013399244424183081754tmp"/>
+    <property name="sun.java.command" value="C:\Users\valco\AppData\Local\Temp\surefire11069982923564793334\surefirebooter3514543746325178860.jar C:\Users\valco\AppData\Local\Temp\surefire11069982923564793334 2020-11-24T23-12-35_362-jvmRun1 surefire6708469789019084773tmp surefire_04537188147765226046tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\dev\420-517_Java\JAG\JAG_Work\target\test-classes;C:\dev\420-517_Java\JAG\JAG_Work\target\classes;C:\Users\valco\.m2\repository\org\jodd\jodd-mail\5.1.6\jodd-mail-5.1.6.jar;C:\Users\valco\.m2\repository\org\jodd\jodd-core\5.1.6\jodd-core-5.1.6.jar;C:\Users\valco\.m2\repository\jakarta\mail\jakarta.mail-api\1.6.5\jakarta.mail-api-1.6.5.jar;C:\Users\valco\.m2\repository\com\sun\mail\jakarta.mail\1.6.5\jakarta.mail-1.6.5.jar;C:\Users\valco\.m2\repository\com\sun\activation\jakarta.activation\1.2.1\jakarta.activation-1.2.1.jar;C:\Users\valco\.m2\repository\javax\mail\javax.mail-api\1.6.2\javax.mail-api-1.6.2.jar;C:\Users\valco\.m2\repository\javax\activation\javax.activation-api\1.2.0\javax.activation-api-1.2.0.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-controls\16-ea+1\javafx-controls-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-controls\16-ea+1\javafx-controls-16-ea+1-win.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-graphics\16-ea+1\javafx-graphics-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-fxml\16-ea+1\javafx-fxml-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-fxml\16-ea+1\javafx-fxml-16-ea+1-win.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-web\16-ea+1\javafx-web-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-web\16-ea+1\javafx-web-16-ea+1-win.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-media\16-ea+1\javafx-media-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-media\16-ea+1\javafx-media-16-ea+1-win.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-swing\16-ea+1\javafx-swing-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-swing\16-ea+1\javafx-swing-16-ea+1-win.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-graphics\16-ea+1\javafx-graphics-16-ea+1-win.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-base\16-ea+1\javafx-base-16-ea+1.jar;C:\Users\valco\.m2\repository\org\openjfx\javafx-base\16-ea+1\javafx-base-16-ea+1-win.jar;C:\Users\valco\.m2\repository\mysql\mysql-connector-java\8.0.21\mysql-connector-java-8.0.21.jar;C:\Users\valco\.m2\repository\com\google\protobuf\protobuf-java\3.11.4\protobuf-java-3.11.4.jar;C:\Users\valco\.m2\repository\org\slf4j\slf4j-api\1.7.30\slf4j-api-1.7.30.jar;C:\Users\valco\.m2\repository\org\apache\logging\log4j\log4j-slf4j-impl\2.13.3\log4j-slf4j-impl-2.13.3.jar;C:\Users\valco\.m2\repository\org\apache\logging\log4j\log4j-api\2.13.3\log4j-api-2.13.3.jar;C:\Users\valco\.m2\repository\org\apache\logging\log4j\log4j-core\2.13.3\log4j-core-2.13.3.jar;C:\Users\valco\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.6.2\junit-jupiter-engine-5.6.2.jar;C:\Users\valco\.m2\repository\org\apiguardian\apiguardian-api\1.1.0\apiguardian-api-1.1.0.jar;C:\Users\valco\.m2\repository\org\junit\platform\junit-platform-engine\1.6.2\junit-platform-engine-1.6.2.jar;C:\Users\valco\.m2\repository\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;C:\Users\valco\.m2\repository\org\junit\platform\junit-platform-commons\1.6.2\junit-platform-commons-1.6.2.jar;C:\Users\valco\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.6.2\junit-jupiter-api-5.6.2.jar;C:\Users\valco\.m2\repository\org\junit\vintage\junit-vintage-engine\5.6.2\junit-vintage-engine-5.6.2.jar;C:\Users\valco\.m2\repository\junit\junit\4.13\junit-4.13.jar;C:\Users\valco\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\valco\AppData\Local\Temp\surefire10472005622535008277\surefirebooter8202536356705845392.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\valco\AppData\Local\Temp\surefire11069982923564793334\surefirebooter3514543746325178860.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="14.0.2+12"/>
@@ -57,101 +57,175 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="58.0"/>
   </properties>
-  <testcase name="testOneRecipientOneCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.845"/>
-  <testcase name="testOneRecipientTwoCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.047"/>
-  <testcase name="testEmailFieldsSame" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="8.214">
-    <error message="Open session error; &lt;--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)" type="jodd.mail.MailException"><![CDATA[jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:442)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:442)
-]]></error>
-    <system-out><![CDATA[[INFO ] 2020-11-24 21:00:28.457 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
-[INFO ] 2020-11-24 21:00:28.458 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[INFO ] 2020-11-24 21:00:28.458 [Time-limited test] SendReceiveEmail - SMTP server generated!
-[INFO ] 2020-11-24 21:00:28.458 [Time-limited test] SendReceiveEmail - Recipient: bg02test@gmail.com added!
-[INFO ] 2020-11-24 21:00:30.061 [Time-limited test] SendReceiveEmail - Email sent.
-[INFO ] 2020-11-24 21:00:30.115 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[DEBUG] 2020-11-24 21:00:30.116 [Time-limited test] SendReceiveEmail - Email Address: bg02test@gmail.com
-[DEBUG] 2020-11-24 21:00:30.116 [Time-limited test] SendReceiveEmail - Password: Dawson123
-[INFO ] 2020-11-24 21:00:30.117 [Time-limited test] SendReceiveEmail - IMAP server generated!
+  <testcase name="testOneRecipientOneCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.603"/>
+  <testcase name="testOneRecipientTwoCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.784"/>
+  <testcase name="testEmailFieldsSame" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="13.088">
+    <failure type="java.lang.AssertionError">java.lang.AssertionError
+	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testEmailFieldsSame(TestMainApplication.java:456)
+</failure>
+    <system-out><![CDATA[[INFO ] 2020-11-24 23:12:49.496 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
+[INFO ] 2020-11-24 23:12:49.497 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
+[INFO ] 2020-11-24 23:12:49.497 [Time-limited test] SendReceiveEmail - SMTP server generated!
+[INFO ] 2020-11-24 23:12:49.497 [Time-limited test] SendReceiveEmail - Recipient: bg02test@gmail.com added!
+[INFO ] 2020-11-24 23:12:51.167 [Time-limited test] SendReceiveEmail - Email sent.
+[INFO ] 2020-11-24 23:12:51.224 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
+[DEBUG] 2020-11-24 23:12:51.225 [Time-limited test] SendReceiveEmail - Email Address: bg02test@gmail.com
+[DEBUG] 2020-11-24 23:12:51.226 [Time-limited test] SendReceiveEmail - Password: Dawson123
+[INFO ] 2020-11-24 23:12:51.228 [Time-limited test] SendReceiveEmail - IMAP server generated!
+[INFO ] 2020-11-24 23:12:56.547 [Time-limited test] SendReceiveEmail - 
+ >>>> ReceivedEmail count = 7
+[INFO ] 2020-11-24 23:12:56.547 [Time-limited test] SendReceiveEmail - 
+
+===[91]===
+[INFO ] 2020-11-24 23:12:56.548 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.548 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.548 [Time-limited test] SendReceiveEmail - CC:[]
+[INFO ] 2020-11-24 23:12:56.548 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.548 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.549 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 22:54:07 EST 2020
+[INFO ] 2020-11-24 23:12:56.549 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 22:54:09 EST 2020
+[INFO ] 2020-11-24 23:12:56.550 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.550 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.550 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.550 [Time-limited test] SendReceiveEmail - gggggggggggggggggggggggggggggggggggggggg
+[INFO ] 2020-11-24 23:12:56.551 [Time-limited test] SendReceiveEmail - +++++
+[INFO ] 2020-11-24 23:12:56.551 [Time-limited test] SendReceiveEmail - 
+
+===[92]===
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - CC:[]
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 22:54:16 EST 2020
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 22:54:18 EST 2020
+[INFO ] 2020-11-24 23:12:56.552 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - TEXT/HTML
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - <img width=100 height=100 id="1" src="cid:blue.png"/>
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.553 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - TEXT/HTML
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - <img width=100 height=100 id="1" src="cid:bliss.png"/>
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - +++++
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - 
+
+===[93]===
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - CC:[]
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.554 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 22:54:22 EST 2020
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 22:54:23 EST 2020
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - fffffffffffffffffffffffffffffffffffffffff
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - +++++
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - 
+
+===[94]===
+[INFO ] 2020-11-24 23:12:56.555 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - CC:[]
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 22:54:27 EST 2020
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 22:54:28 EST 2020
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.556 [Time-limited test] SendReceiveEmail - this is the email with nothing but text and a recipient
+
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - +++++
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - 
+
+===[95]===
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com, bg03test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - CC:[]
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.557 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 22:54:42 EST 2020
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 22:54:43 EST 2020
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - +++++
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - 
+
+===[96]===
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.558 [Time-limited test] SendReceiveEmail - CC:[bg03test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 23:12:37 EST 2020
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 23:12:38 EST 2020
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - +++++
+[INFO ] 2020-11-24 23:12:56.559 [Time-limited test] SendReceiveEmail - 
+
+===[97]===
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - FROM:bg01test@gmail.com
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - TO:[bg02test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - CC:[bg03test@gmail.com, bg04test@gmail.com]
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - SUBJECT:null
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - PRIORITY:-1
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - SENT DATE:Tue Nov 24 23:12:42 EST 2020
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - RECEIVED DATE: Tue Nov 24 23:12:43 EST 2020
+[INFO ] 2020-11-24 23:12:56.560 [Time-limited test] SendReceiveEmail - ------
+[INFO ] 2020-11-24 23:12:56.561 [Time-limited test] SendReceiveEmail - UTF-8
+[INFO ] 2020-11-24 23:12:56.561 [Time-limited test] SendReceiveEmail - TEXT/PLAIN
+[INFO ] 2020-11-24 23:12:56.561 [Time-limited test] SendReceiveEmail - ddddddddddddddddddddddddddddddddddd
+
+[INFO ] 2020-11-24 23:12:56.561 [Time-limited test] SendReceiveEmail - +++++
 ]]></system-out>
   </testcase>
-  <testcase name="testRetrievingReturningArrayofReceivedEmails" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="8.078">
-    <error message="Open session error; &lt;--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)" type="jodd.mail.MailException"><![CDATA[jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testRetrievingReturningArrayofReceivedEmails(TestMainApplication.java:366)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testRetrievingReturningArrayofReceivedEmails(TestMainApplication.java:366)
-]]></error>
-    <system-out><![CDATA[[INFO ] 2020-11-24 21:00:33.659 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
-[INFO ] 2020-11-24 21:00:33.659 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[INFO ] 2020-11-24 21:00:33.660 [Time-limited test] SendReceiveEmail - SMTP server generated!
-[INFO ] 2020-11-24 21:00:33.660 [Time-limited test] SendReceiveEmail - Recipient: bg02test@gmail.com added!
-[INFO ] 2020-11-24 21:00:35.269 [Time-limited test] SendReceiveEmail - Email sent.
-[INFO ] 2020-11-24 21:00:38.333 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[DEBUG] 2020-11-24 21:00:38.333 [Time-limited test] SendReceiveEmail - Email Address: bg02test@gmail.com
-[DEBUG] 2020-11-24 21:00:38.333 [Time-limited test] SendReceiveEmail - Password: Dawson123
-[INFO ] 2020-11-24 21:00:38.333 [Time-limited test] SendReceiveEmail - IMAP server generated!
-]]></system-out>
-  </testcase>
-  <testcase name="testDoubleReceive" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="8.449">
-    <error message="Open session error; &lt;--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)" type="jodd.mail.MailException"><![CDATA[jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testDoubleReceive(TestMainApplication.java:417)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testDoubleReceive(TestMainApplication.java:417)
-]]></error>
-    <system-out><![CDATA[[INFO ] 2020-11-24 21:00:41.737 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
-[INFO ] 2020-11-24 21:00:41.737 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[INFO ] 2020-11-24 21:00:41.738 [Time-limited test] SendReceiveEmail - SMTP server generated!
-[INFO ] 2020-11-24 21:00:41.738 [Time-limited test] SendReceiveEmail - Recipient: bg02test@gmail.com added!
-[INFO ] 2020-11-24 21:00:43.590 [Time-limited test] SendReceiveEmail - Email sent.
-[INFO ] 2020-11-24 21:00:46.659 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[DEBUG] 2020-11-24 21:00:46.659 [Time-limited test] SendReceiveEmail - Email Address: bg02test@gmail.com
-[DEBUG] 2020-11-24 21:00:46.659 [Time-limited test] SendReceiveEmail - Password: Dawson123
-[INFO ] 2020-11-24 21:00:46.659 [Time-limited test] SendReceiveEmail - IMAP server generated!
-]]></system-out>
-  </testcase>
-  <testcase name="testOneRecipientOneBCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.799"/>
-  <testcase name="testOneRecipientTwoBCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.812"/>
-  <testcase name="testNullEmailAddressSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.339">
+  <testcase name="testRetrievingReturningArrayofReceivedEmails" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="9.393"/>
+  <testcase name="testDoubleReceive" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="12.56"/>
+  <testcase name="testOneRecipientOneBCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.768"/>
+  <testcase name="testOneRecipientTwoBCC" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.833"/>
+  <testcase name="testNullEmailAddressSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.309">
     <error message="Unexpected exception, expected&lt;jodd.mail.MailException&gt; but was&lt;java.lang.ExceptionInInitializerError&gt;" type="java.lang.Exception"><![CDATA[java.lang.Exception: Unexpected exception, expected<jodd.mail.MailException> but was<java.lang.ExceptionInInitializerError>
 	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testNullEmailAddressSend(TestMainApplication.java:339)
 Caused by: java.lang.IllegalStateException: Toolkit not initialized
 	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testNullEmailAddressSend(TestMainApplication.java:339)
 ]]></error>
-    <system-out><![CDATA[[INFO ] 2020-11-24 21:00:59.799 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
+    <system-out><![CDATA[[INFO ] 2020-11-24 23:13:31.135 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
 ]]></system-out>
   </testcase>
-  <testcase name="testSendTextSubjectHTMLEmail" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.753"/>
-  <testcase name="testOneRecipientOneEmbeddedAttachment" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.941"/>
-  <testcase name="testSendEmptyMessage" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.69"/>
-  <testcase name="testBadMailConfigBadEmailOnReceive" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="9.759"/>
-  <testcase name="testBadMailConfigWrongPassOnReceive" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="9.867"/>
-  <testcase name="testSendHTMLEmail" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.873"/>
-  <testcase name="testReceivingEmails" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.518">
-    <error message="Open session error; &lt;--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)" type="jodd.mail.MailException"><![CDATA[jodd.mail.MailException: Open session error; <--- javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testReceivingEmails(TestMainApplication.java:380)
-Caused by: javax.mail.AuthenticationFailedException: [AUTHENTICATIONFAILED] Invalid credentials (Failure)
-	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testReceivingEmails(TestMainApplication.java:380)
-]]></error>
-    <system-out><![CDATA[[INFO ] 2020-11-24 21:01:42.021 [Time-limited test] SendReceiveEmail - Email bg02test@gmail.com verified!
-[DEBUG] 2020-11-24 21:01:42.021 [Time-limited test] SendReceiveEmail - Email Address: bg02test@gmail.com
-[DEBUG] 2020-11-24 21:01:42.021 [Time-limited test] SendReceiveEmail - Password: Dawson123
-[INFO ] 2020-11-24 21:01:42.021 [Time-limited test] SendReceiveEmail - IMAP server generated!
-]]></system-out>
-  </testcase>
-  <testcase name="testOneRecipientMultipleAttachments" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.681"/>
-  <testcase name="testSendWithoutRecipient" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.77"/>
-  <testcase name="testOneRecipientMultipleEmbeddedAttachment" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.352"/>
-  <testcase name="testOneRecipientOneAttachment" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.486"/>
-  <testcase name="testSendTextOnlyMessage" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.786"/>
-  <testcase name="testBadMailConfigBadEmailOnSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.41"/>
-  <testcase name="testBadMailConfigWrongPassOnSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.406"/>
-  <testcase name="testInvalidEmailAddressSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.016">
+  <testcase name="testSendTextSubjectHTMLEmail" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.708"/>
+  <testcase name="testOneRecipientOneEmbeddedAttachment" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.914"/>
+  <testcase name="testSendEmptyMessage" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.968"/>
+  <testcase name="testBadMailConfigBadEmailOnReceive" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="9.702"/>
+  <testcase name="testBadMailConfigWrongPassOnReceive" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="9.748"/>
+  <testcase name="testSendHTMLEmail" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.739"/>
+  <testcase name="testReceivingEmails" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="25.376"/>
+  <testcase name="testOneRecipientMultipleAttachments" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.664"/>
+  <testcase name="testSendWithoutRecipient" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.64"/>
+  <testcase name="testOneRecipientMultipleEmbeddedAttachment" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.685"/>
+  <testcase name="testOneRecipientOneAttachment" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="5.526"/>
+  <testcase name="testSendTextOnlyMessage" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.688"/>
+  <testcase name="testBadMailConfigBadEmailOnSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.412"/>
+  <testcase name="testBadMailConfigWrongPassOnSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.414"/>
+  <testcase name="testInvalidEmailAddressSend" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="3.008">
     <error message="Unexpected exception, expected&lt;jodd.mail.MailException&gt; but was&lt;java.lang.NoClassDefFoundError&gt;" type="java.lang.Exception"><![CDATA[java.lang.Exception: Unexpected exception, expected<jodd.mail.MailException> but was<java.lang.NoClassDefFoundError>
 	at ca.brandongartner.jag.mail_business_tests.TestMainApplication.testInvalidEmailAddressSend(TestMainApplication.java:349)
 ]]></error>
-    <system-out><![CDATA[[INFO ] 2020-11-24 21:02:17.430 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
+    <system-out><![CDATA[[INFO ] 2020-11-24 23:15:10.629 [Time-limited test] SendReceiveEmail - Email bg01test@gmail.com verified!
 ]]></system-out>
   </testcase>
-  <testcase name="testSendMultipleRecipients" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.917"/>
+  <testcase name="testSendMultipleRecipients" classname="ca.brandongartner.jag.mail_business_tests.TestMainApplication" time="4.779"/>
 </testsuite>

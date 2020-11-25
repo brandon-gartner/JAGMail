@@ -84,6 +84,12 @@ public class TreeFXMLController {
         LOG.trace("Finished setting up the tree cell settings.");
     }
            
+    /**
+     * finds the folder that an email was dropped onto, and moves the email there, in the database
+     * then, it updates the tree
+     * @param event the event of dropping an email from the table onto the tree
+     * @throws SQLException 
+     */
     @FXML
     private void dragDropped(DragEvent event) throws SQLException {
         LOG.trace("Dropped onto the tree.");
@@ -93,8 +99,14 @@ public class TreeFXMLController {
             String emailId = dragboard.getString();
             LOG.debug("The email ID is: " + emailId);
             succeeded = true;
-            //this is the only way i could find to get the name of the folder
+            //this is the only way i could find to get the name of the folder we drop onto
             String folderName = event.getTarget().toString().split("\"")[1];
+            
+            if (folderName.equals("Folders")){
+                LOG.trace("User attempted to move an email to an invalid folder.  Cancelling drop.");
+                return;
+            }
+            
             LOG.debug("FolderName is: " + folderName);
             LOG.trace("Moving the email to " + folderName);
             DAO.updateEmailFolder(Integer.parseInt(emailId), folderName);
@@ -106,6 +118,10 @@ public class TreeFXMLController {
     }
     
     
+    /**
+     * triggers when you drag an email from the table over the tree, and allows us to copy/move things to the tree
+     * @param event the event of dragging an email from the table over the tree
+     */
     @FXML
     private void draggedOnto(DragEvent event){
         LOG.trace("Dragged something onto a folder.");

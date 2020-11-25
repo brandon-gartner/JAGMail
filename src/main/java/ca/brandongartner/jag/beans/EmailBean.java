@@ -5,6 +5,7 @@
  */
 package ca.brandongartner.jag.beans;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,6 +108,7 @@ public class EmailBean {
         this.emailId = newId;
     }
     
+    //converts received email to an emailbean
     public EmailBean(ReceivedEmail received){
         Email email = new Email();
         email.sentDate(received.receivedDate());
@@ -114,6 +116,9 @@ public class EmailBean {
         email.subject(received.subject());
         email.textMessage(received.messages().get(0).getContent());
         email.htmlMessage(received.messages().get(1).getContent());
+        for (EmailAttachment<? extends DataSource> attachment : received.attachments()){
+            email.attachment(attachment);
+        }
         this.setEmail(email);
     }
     

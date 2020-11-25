@@ -151,7 +151,7 @@ public class MainAppFX extends Application {
         dialog.setTitle(ResourceBundle.getBundle("MessagesBundle", currentLocale).getString("ioError"));
         dialog.setHeaderText(ResourceBundle.getBundle("MessagesBundle", currentLocale).getString("ioError"));
         dialog.setContentText(ResourceBundle.getBundle("MessagesBundle", currentLocale).getString(msg));
-        dialog.show();
+        dialog.showAndWait();
     }
     
     /**
